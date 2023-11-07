@@ -14,6 +14,7 @@ type Config struct {
 	Level     string
 	AddSource bool
 	JSON      bool
+	Fields    map[string]string
 }
 
 func Configure(cfg Config) {
@@ -34,6 +35,11 @@ func Configure(cfg Config) {
 		h = slog.NewTextHandler(os.Stdout, opts)
 	}
 	logger := slog.New(h)
+	if len(cfg.Fields) > 0 {
+		for k, v := range cfg.Fields {
+			logger = logger.With(slog.String(k, v))
+		}
+	}
 	slog.SetDefault(logger)
 	slog.Info("log configured")
 }
