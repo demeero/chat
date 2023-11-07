@@ -3,6 +3,7 @@ package httpsrv
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
@@ -14,6 +15,9 @@ import (
 	"github.com/demeero/chat/bricks/session"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
 // LogCtxMW is a middleware that adds logger to request context.
@@ -135,4 +139,76 @@ func retrieveJWT(request *http.Request) (string, error) {
 		return "", errors.New("invalid authorization header format")
 	}
 	return h[1], nil
+}
+
+// Meter is a middleware that records metrics for each request.
+func Meter() (echo.MiddlewareFunc, error) {
+	httpMeter := otel.GetMeterProvider().Meter("http-server")
+	srvLatencyHist, err := httpMeter.Int64Histogram("http_server_latency",
+		metric.WithDescription("The latency of HTTP requests"), metric.WithUnit("ms"))
+	if err != nil {
+		return nil, fmt.Errorf("failed create http_server_latency metric: %w", err)
+	}
+	srvReqCounter, err := httpMeter.Int64Counter("http_server_request_count",
+		metric.WithDescription("The number of HTTP requests"))
+	if err != nil {
+		return nil, fmt.Errorf("failed create http_server_request_count metric: %w", err)
+	}
+	srvReqSizeHist, err := httpMeter.Int64Histogram("http_server_request_size",
+		metric.WithDescription("The size of HTTP requests"), metric.WithUnit("B"))
+	if err != nil {
+		return nil, fmt.Errorf("failed create http_server_request_size metric: %w", err)
+	}
+	srvRespSizeHist, err := httpMeter.Int64Histogram("http_server_response_size",
+		metric.WithDescription("The size of HTTP responses"), metric.WithUnit("B"))
+	if err != nil {
+		return nil, fmt.Errorf("failed create http_server_response_size metric: %w", err)
+	}
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			start := time.Now().UTC()
+			reqSz := computeApproximateRequestSize(c.Request())
+
+			err := next(c)
+			if err != nil {
+				c.Error(err)
+			}
+
+			attrs := []attribute.KeyValue{
+				attribute.String("method", c.Request().Method),
+				attribute.String("path", c.Path()),
+				attribute.Int("status", c.Response().Status),
+			}
+			ctx := c.Request().Context()
+			srvReqCounter.Add(ctx, 1, metric.WithAttributes(attrs...))
+			srvLatencyHist.Record(ctx, time.Since(start).Milliseconds(), metric.WithAttributes(attrs...))
+			srvReqSizeHist.Record(ctx, reqSz, metric.WithAttributes(attrs...))
+			srvRespSizeHist.Record(ctx, c.Response().Size, metric.WithAttributes(attrs...))
+			return err
+		}
+	}, nil
+}
+
+func computeApproximateRequestSize(r *http.Request) int64 {
+	s := 0
+	if r.URL != nil {
+		s = len(r.URL.Path)
+	}
+
+	s += len(r.Method)
+	s += len(r.Proto)
+	for name, values := range r.Header {
+		s += len(name)
+		for _, value := range values {
+			s += len(value)
+		}
+	}
+	s += len(r.Host)
+
+	// N.B. r.Form and r.MultipartForm are assumed to be included in r.URL.
+
+	if r.ContentLength != -1 {
+		s += int(r.ContentLength)
+	}
+	return int64(s)
 }
