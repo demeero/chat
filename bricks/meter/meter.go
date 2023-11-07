@@ -45,7 +45,7 @@ func Init(ctx context.Context, cfg Config) (func(ctx context.Context) error, err
 		}
 	}
 	if cfg.RuntimeMetrics {
-		if err := runtime.Start(); err != nil {
+		if err := runtime.Start(runtime.WithMeterProvider(meterProvider)); err != nil {
 			return nil, fmt.Errorf("failed start runtime metrics: %w", err)
 		}
 	}
