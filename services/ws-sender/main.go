@@ -12,9 +12,9 @@ import (
 	"github.com/demeero/chat/bricks/logger"
 	"github.com/demeero/chat/bricks/meter"
 	"github.com/demeero/chat/bricks/tracer"
+	"github.com/demeero/chat/bricks/watermillbrick"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
-	wotel "github.com/voi-oss/watermill-opentelemetry/pkg/opentelemetry"
 )
 
 func main() {
@@ -65,7 +65,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed create redisstream publisher: %s", err)
 	}
-	publisher := wotel.NewNamedPublisherDecorator("ws-sender", pub)
+	publisher, err := watermillbrick.NewPublisher("ws-sender", pub)
+	if err != nil {
+		log.Fatalf("failed create instrumented watermill publisher: %s", err)
+	}
 
 	httpSrv := setupHTTPSrv(ctx, cfg, publisher)
 

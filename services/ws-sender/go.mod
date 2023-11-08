@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-redisstream v1.2.2
-	github.com/demeero/chat/bricks v0.0.0-20231108144752-9902b26d98a4
+	github.com/demeero/chat/bricks v0.0.0-20231108232353-17ed8e1f2b4e
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
@@ -66,6 +66,6 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230711160842-782d3b101e98 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
-	google.golang.org/grpc v1.58.2 // indirect
+	google.golang.org/grpc v1.58.3 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 )
