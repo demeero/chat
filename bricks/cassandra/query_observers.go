@@ -13,6 +13,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/metric"
+	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -59,7 +60,7 @@ func (o TraceQueryObserver) ObserveQuery(ctx context.Context, q gocql.ObservedQu
 	}
 	t := otel.GetTracerProvider().Tracer("cassandra")
 	ctx, span := t.Start(ctx, "cql-query", trace.WithTimestamp(q.Start.UTC()))
-	span.SetAttributes(attribute.String("statement", q.Statement),
+	span.SetAttributes(semconv.DBStatementKey.String(q.Statement),
 		attribute.String("keyspace", q.Keyspace),
 		attribute.Int("rows", q.Rows),
 		attribute.Int("attempt", q.Attempt))
