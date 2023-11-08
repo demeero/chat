@@ -2,13 +2,17 @@ package cassandra
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log/slog"
 
 	"github.com/demeero/chat/bricks/logger"
+	"github.com/demeero/chat/bricks/meter"
 	"github.com/gocql/gocql"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -59,7 +63,7 @@ func (o TraceQueryObserver) ObserveQuery(ctx context.Context, q gocql.ObservedQu
 		attribute.String("keyspace", q.Keyspace),
 		attribute.Int("rows", q.Rows),
 		attribute.Int("attempt", q.Attempt))
-	if q.Err != nil {
+	if q.Err != nil && !errors.Is(q.Err, gocql.ErrNotFound) {
 		span.RecordError(q.Err)
 		span.SetStatus(codes.Error, "")
 	}
@@ -67,15 +71,54 @@ func (o TraceQueryObserver) ObserveQuery(ctx context.Context, q gocql.ObservedQu
 	span.End(trace.WithTimestamp(q.End.UTC()))
 }
 
+type queryMetrics struct {
+	latencyHist  metric.Int64Histogram
+	queryCounter metric.Int64Counter
+}
+
+func newQueryMetrics() (*queryMetrics, error) {
+	cqlMeter := otel.GetMeterProvider().Meter("cql")
+	latency, err := cqlMeter.Int64Histogram("cql_query_latency", metric.WithDescription("cql query latency"), metric.WithUnit("ms"))
+	if err != nil {
+		return nil, fmt.Errorf("failed create cql_query_latency metric: %w", err)
+	}
+	queryCounter, err := cqlMeter.Int64Counter("cql_query_count", metric.WithDescription("cql query count"))
+	if err != nil {
+		return nil, fmt.Errorf("failed create cql_query_count metric: %w", err)
+	}
+	return &queryMetrics{
+		latencyHist:  latency,
+		queryCounter: queryCounter,
+	}, nil
+}
+
 type MeterQueryObserver struct {
 	Disabled bool
+	qMeter   *queryMetrics
 }
 
 func (o MeterQueryObserver) ObserveQuery(ctx context.Context, q gocql.ObservedQuery) {
 	if o.Disabled {
 		return
 	}
-	meter := otel.GetMeterProvider().Meter("cassandra")
-	_ = meter
-	// TODO
+	if o.qMeter == nil {
+		qMeter, err := newQueryMetrics()
+		if err != nil {
+			logger.FromCtx(ctx).Error("failed create cql query metrics", slog.Any("err", err))
+			return
+		}
+		o.qMeter = qMeter
+	}
+	attrs := meter.AttrsFromCtx(ctx)
+	if q.Err != nil && !errors.Is(q.Err, gocql.ErrNotFound) {
+		attrs = append(attrs, attribute.String("result", "error"))
+	} else {
+		attrs = append(attrs, attribute.String("result", "success"))
+	}
+	if q.Attempt > 0 {
+		attrs = append(attrs, attribute.Bool("with_retry", true))
+	}
+	attrs = append(attrs, attribute.String("keyspace", q.Keyspace))
+	o.qMeter.queryCounter.Add(ctx, 1, metric.WithAttributes(attrs...))
+	o.qMeter.latencyHist.Record(ctx, q.Metrics.TotalLatency/1e6, metric.WithAttributes(attrs...))
 }

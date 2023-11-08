@@ -12,6 +12,7 @@ import (
 
 	"github.com/MicahParks/keyfunc/v2"
 	"github.com/demeero/chat/bricks/logger"
+	"github.com/demeero/chat/bricks/meter"
 	"github.com/demeero/chat/bricks/session"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
@@ -169,17 +170,21 @@ func Meter() (echo.MiddlewareFunc, error) {
 			start := time.Now().UTC()
 			reqSz := computeApproximateRequestSize(c.Request())
 
+			attrs := []attribute.KeyValue{
+				attribute.String("method", c.Request().Method),
+				attribute.String("path", c.Path()),
+			}
+
+			c.SetRequest(c.Request().WithContext(meter.AttrsToCtx(c.Request().Context(), attrs)))
+
 			err := next(c)
 			if err != nil {
 				c.Error(err)
 			}
 
-			attrs := []attribute.KeyValue{
-				attribute.String("method", c.Request().Method),
-				attribute.String("path", c.Path()),
-				attribute.Int("status", c.Response().Status),
-			}
+			attrs = append(attrs, attribute.Int("status", c.Response().Status))
 			ctx := c.Request().Context()
+
 			srvReqCounter.Add(ctx, 1, metric.WithAttributes(attrs...))
 			srvLatencyHist.Record(ctx, time.Since(start).Milliseconds(), metric.WithAttributes(attrs...))
 			srvReqSizeHist.Record(ctx, reqSz, metric.WithAttributes(attrs...))
