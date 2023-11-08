@@ -19,6 +19,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // LogCtxMW is a middleware that adds logger to request context.
@@ -29,6 +30,12 @@ func LogCtxMW() echo.MiddlewareFunc {
 			reqLogger := slog.Default().With(
 				slog.String("http_route", req.RequestURI),
 				slog.String("http_method", req.Method))
+			spanCtx := trace.SpanContextFromContext(req.Context())
+			if spanCtx.IsValid() {
+				reqLogger = reqLogger.With(
+					slog.String("otel_trace_id", spanCtx.TraceID().String()),
+					slog.String("otel_req_span_id", spanCtx.SpanID().String()))
+			}
 			ctx := logger.ToCtx(req.Context(), reqLogger)
 			c.SetRequest(req.WithContext(ctx))
 			return next(c)
