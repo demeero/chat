@@ -61,6 +61,7 @@ func (o TraceQueryObserver) ObserveQuery(ctx context.Context, q gocql.ObservedQu
 	t := otel.GetTracerProvider().Tracer("cassandra")
 	ctx, span := t.Start(ctx, "cql-query", trace.WithTimestamp(q.Start.UTC()))
 	span.SetAttributes(semconv.DBStatementKey.String(q.Statement),
+		semconv.DBSystemCassandra,
 		attribute.String("keyspace", q.Keyspace),
 		attribute.Int("rows", q.Rows),
 		attribute.Int("attempt", q.Attempt))
@@ -110,11 +111,11 @@ func (o MeterQueryObserver) ObserveQuery(ctx context.Context, q gocql.ObservedQu
 		}
 		o.qMeter = qMeter
 	}
-	attrs := meter.AttrsFromCtx(ctx)
+	attrs := append(meter.AttrsFromCtx(ctx), semconv.DBSystemCassandra)
 	if q.Err != nil && !errors.Is(q.Err, gocql.ErrNotFound) {
-		attrs = append(attrs, attribute.String("result", "error"))
+		attrs = append(attrs, semconv.OTelStatusCodeError)
 	} else {
-		attrs = append(attrs, attribute.String("result", "success"))
+		attrs = append(attrs, semconv.OTelStatusCodeOk)
 	}
 	if q.Attempt > 0 {
 		attrs = append(attrs, attribute.Bool("with_retry", true))
