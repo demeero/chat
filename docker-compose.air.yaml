@@ -1,0 +1,51 @@
+services:
+
+  ws-sender:
+    extends:
+      file: docker-compose.yaml
+      service: ws-sender
+    build:
+      dockerfile: $PWD/services/ws-sender/dev.Dockerfile
+    volumes:
+      - $PWD/services/ws-sender:/app
+    ports:
+      - "8081:8081"
+    deploy:
+      replicas: 1
+
+  ws-receiver:
+    extends:
+      file: docker-compose.yaml
+      service: ws-receiver
+    build:
+      dockerfile: $PWD/services/ws-receiver/dev.Dockerfile
+    volumes:
+      - $PWD/services/ws-receiver:/app
+    ports:
+      - "8082:8082"
+    deploy:
+      replicas: 1
+
+  history-writer:
+    extends:
+      file: docker-compose.yaml
+      service: history-writer
+    build:
+      dockerfile: $PWD/services/history-writer/dev.Dockerfile
+    volumes:
+      - $PWD/services/history-writer:/app
+
+  history-loader:
+    extends:
+      file: docker-compose.yaml
+      service: history-loader
+    build:
+      dockerfile: $PWD/services/history-loader/dev.Dockerfile
+    volumes:
+      - $PWD/services/history-loader:/app
+    ports:
+      - "8083:8083"
+    deploy:
+      replicas: 1
+
+

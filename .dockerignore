@@ -1,0 +1,7 @@
+_deploy_
+bin
+kind
+.vscode
+README.md
+.idea
+.test
