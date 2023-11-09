@@ -49,6 +49,9 @@ func (p *Publisher) Publish(topic string, messages ...*message.Message) error {
 				trace.WithLinks(trace.Link{SpanContext: trace.SpanContextFromContext(ctx)}))
 		ctx = spanCtx
 		defer span.End()
+		for _, msg := range messages {
+			msg.SetContext(ctx)
+		}
 	}
 
 	err := p.pub.Publish(topic, messages...)
