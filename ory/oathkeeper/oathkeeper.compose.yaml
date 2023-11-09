@@ -1,0 +1,117 @@
+serve:
+  proxy:
+    port: 4455
+  api:
+    port: 4456
+    cors:
+      enabled: true
+      allowed_origins:
+        - http://127.0.0.1
+        - http://localhost
+      allowed_methods:
+        - POST
+        - GET
+        - PUT
+        - PATCH
+        - DELETE
+      allowed_headers:
+        - Origin
+        - Authorization
+        - Cookie
+        - Content-Type
+        - Accept
+      exposed_headers:
+        - Content-Type
+        - Set-Cookie
+      allow_credentials: true
+      debug: true
+
+log:
+  level: trace
+  format: text
+  leak_sensitive_values: true
+
+authorizers:
+  allow:
+    enabled: true
+  deny:
+    enabled: true
+  remote_json:
+    enabled: true
+    config:
+      # these values are required in schema, but it can be overridden in the concrete authorizer in the rules.json
+      remote: http://keto:4466/check
+      forward_response_headers_to_upstream: [ ]
+      payload: |
+        {}
+
+authenticators:
+  noop:
+    enabled: true
+  anonymous:
+    enabled: true
+    config:
+      subject: guest
+  cookie_session:
+    enabled: true
+    config:
+      check_session_url: http://kratos:4433/sessions/whoami
+      preserve_path: true
+      extra_from: "@this"
+      subject_from: "identity.id"
+      only:
+        - ory_kratos_session
+  bearer_token:
+    enabled: true
+    config:
+      check_session_url: http://kratos:4433/sessions/whoami
+      force_method: GET
+      token_from:
+        header: X-Session-Token
+      preserve_path: true
+      extra_from: "@this"
+      subject_from: "identity.id"
+      forward_http_headers:
+        - Authorization
+        - Cookie
+        - X-Forwarded-For
+        - X-Session-Token
+
+
+mutators:
+  noop:
+    enabled: true
+
+  id_token:
+    enabled: true
+    config:
+      issuer_url: https://my-oathkeeper/
+      jwks_url: file:///etc/config/id_token.jwks.json
+      claims: |
+        {
+          "session": {{ .Extra | toJson }}
+        }
+
+errors:
+  fallback:
+    - json
+  handlers:
+    json:
+      enabled: true
+      config:
+        verbose: true
+
+access_rules:
+  matching_strategy: glob
+  repositories:
+    - file:///etc/config/rules.yaml
+
+tracing:
+  service_name: Ory Oathkeeper
+  providers:
+    otlp:
+      insecure: true
+      sampling:
+        sampling_ratio: 1
+      server_url: otel-collector:4318
+  provider: otel

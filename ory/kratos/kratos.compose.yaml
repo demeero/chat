@@ -1,0 +1,84 @@
+version: v0.13.0
+
+serve:
+  public:
+    base_url: http://127.0.0.1:4455/.ory/kratos/public/
+    cors:
+      enabled: true
+      allowed_headers:
+        - Origin
+        - Authorization
+        - Cookie
+        - Content-Type
+        - Accept
+      exposed_headers:
+        - Content-Type
+        - Set-Cookie
+      allowed_origins:
+        - http://localhost:5173
+
+  admin:
+    base_url: http://kratos:4434/
+
+selfservice:
+  default_browser_return_url: http://127.0.0.1:4455/
+
+  methods:
+    password:
+      enabled: true
+
+  flows:
+    login:
+      lifespan: 10m
+    registration:
+      lifespan: 10m
+      after:
+        password:
+          hooks:
+            - hook: session
+
+log:
+  level: debug
+  format: text
+  leak_sensitive_values: true
+
+secrets:
+  cookie:
+    - PLEASE-CHANGE-ME-I-AM-VERY-INSECURE
+  cipher:
+    - 32-LONG-SECRET-NOT-SECURE-AT-ALL
+
+ciphers:
+  algorithm: xchacha20-poly1305
+
+cookies:
+  same_site: Lax
+
+session:
+  cookie:
+    same_site: Lax
+
+hashers:
+  algorithm: bcrypt
+  bcrypt:
+    cost: 8
+
+identity:
+  default_schema_id: default
+  schemas:
+    - id: default
+      url: file:///etc/config/identity.schema.json
+
+courier:
+  smtp:
+    connection_uri: smtps://test:test@mailslurper:1025/?skip_ssl_verify=true
+
+tracing:
+  service_name: Ory Kratos
+  providers:
+    otlp:
+      insecure: true
+      sampling:
+        sampling_ratio: 1
+      server_url: otel-collector:4318
+  provider: otel

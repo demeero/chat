@@ -1,0 +1,73 @@
+- id: "ory:kratos:public"
+  upstream:
+    preserve_host: true
+    url: "http://kratos:4433"
+    strip_path: /.ory/kratos/public
+  match:
+    url: "<{http,https}>://<{localhost,127.0.0.1}{,:[0-9]*}>/.ory/kratos/public/<**>"
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+      - OPTIONS
+  authenticators:
+    - handler: noop
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: noop
+
+- id: "ws-receiver"
+  upstream:
+    preserve_host: true
+    url: "http://ws-receiver:8082"
+  match:
+    url: "<{http,https}>://<{localhost,127.0.0.1}{,:[0-9]*}>/receiver"
+    methods:
+      - GET
+      - POST
+      - OPTIONS
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+
+- id: "ws-sender"
+  upstream:
+    preserve_host: true
+    url: "http://ws-sender:8081"
+  match:
+    url: "<{http,https}>://<{localhost,127.0.0.1}{,:[0-9]*}>/sender"
+    methods:
+      - GET
+      - POST
+      - OPTIONS
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
+
+- id: "history"
+  upstream:
+    preserve_host: true
+    url: "http://history-loader:8083"
+  match:
+    url: "<{http,https}>://<{localhost,127.0.0.1}{,:[0-9]*}>/history"
+    methods:
+      - GET
+      - OPTIONS
+  authenticators:
+    - handler: cookie_session
+    - handler: bearer_token
+  authorizer:
+    handler: allow
+  mutators:
+    - handler: id_token
