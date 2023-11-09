@@ -4,6 +4,8 @@ import (
 	"context"
 	"log/slog"
 	"os"
+
+	"go.opentelemetry.io/otel/trace"
 )
 
 type logCtxKey struct{}
@@ -55,4 +57,15 @@ func FromCtx(ctx context.Context) *slog.Logger {
 
 func ToCtx(ctx context.Context, logger *slog.Logger) context.Context {
 	return context.WithValue(ctx, logKey, logger)
+}
+
+func InstrumentWithTrace(ctx context.Context, logger *slog.Logger) *slog.Logger {
+	spanCtx := trace.SpanContextFromContext(ctx)
+	if spanCtx.HasSpanID() {
+		logger = logger.With(slog.String("otel_span_id", spanCtx.SpanID().String()))
+	}
+	if spanCtx.HasTraceID() {
+		logger = logger.With(slog.String("otel_trace_id", spanCtx.TraceID().String()))
+	}
+	return logger
 }
