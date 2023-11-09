@@ -19,8 +19,10 @@ github.com/cespare/xxhash/v2 v2.2.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XL
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/demeero/chat/bricks v0.0.0-20231108232353-17ed8e1f2b4e h1:QQpFxQjTkoVMeaD2zH4GNIB5s/iKlsuNyvnGhc594vk=
-github.com/demeero/chat/bricks v0.0.0-20231108232353-17ed8e1f2b4e/go.mod h1:MtiDgcjRf2T/JFRPanWz3/UasqG5B59A0XOe0Tpg94E=
+github.com/demeero/chat/bricks v0.0.0-20231109001010-46c337744640 h1:AyOQNz58oIHkdkwwI7zHbgEhp/t+9i474kZXU/1jer4=
+github.com/demeero/chat/bricks v0.0.0-20231109001010-46c337744640/go.mod h1:MtiDgcjRf2T/JFRPanWz3/UasqG5B59A0XOe0Tpg94E=
+github.com/demeero/chat/bricks v0.0.0-20231109001729-36c329b6d6cd h1:rPNclvmd7qH4I7FufU859aUw5jqAfQ9aQY4ZzE6sgpU=
+github.com/demeero/chat/bricks v0.0.0-20231109001729-36c329b6d6cd/go.mod h1:MtiDgcjRf2T/JFRPanWz3/UasqG5B59A0XOe0Tpg94E=
 github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0 h1:ew7c2ajBW7enU9IMYfPqwUuk5mF6r0NLoTU2w25JEFg=
 github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0/go.mod h1:cs6ezEkxdHQJxc6oAGR9YDOqbDZGIkoKDrtYCsAknW0=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=

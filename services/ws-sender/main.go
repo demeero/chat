@@ -65,7 +65,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed create redisstream publisher: %s", err)
 	}
-	publisher, err := watermillbrick.NewPublisher("ws-sender", pub)
+	publisher, err := watermillbrick.NewPublisher(watermillbrick.PubConfig{
+		Name:                "ws-sender",
+		Metrics:             true,
+		NewRootSpanWithLink: true,
+	}, pub)
 	if err != nil {
 		log.Fatalf("failed create instrumented watermill publisher: %s", err)
 	}
