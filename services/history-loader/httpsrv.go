@@ -7,7 +7,10 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"slices"
+	"strconv"
 
+	"github.com/demeero/chat/bricks/apperr"
 	"github.com/demeero/chat/bricks/httpsrv"
 	"github.com/labstack/echo/v4"
 	echomw "github.com/labstack/echo/v4/middleware"
@@ -39,14 +42,27 @@ func setupHTTPSrv(ctx context.Context, cfg Config, l Loader) *echo.Echo {
 	e.Use(httpsrv.LogMW(slog.LevelDebug))
 
 	e.GET("/history", func(c echo.Context) error {
-		msgs, err := l.Load(c.Request().Context())
+		pSize := c.QueryParam("page_size")
+		pSizeInt, err := strconv.Atoi(pSize)
+		if err != nil {
+			return fmt.Errorf("%w: failed parse page size: %s", apperr.ErrInvalidData, err)
+		}
+		p, err := NewPagination(c.QueryParam("page_token"), uint16(pSizeInt))
+		if err != nil {
+			return err
+		}
+		msgs, pt, err := l.Load(c.Request().Context(), p)
 		if err != nil {
 			return fmt.Errorf("failed load chat history: %w", err)
 		}
 		if msgs == nil {
 			msgs = []Message{}
 		}
-		return c.JSON(http.StatusOK, msgs)
+		slices.Reverse(msgs)
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"page":            msgs,
+			"next_page_token": pt,
+		})
 	})
 
 	go func() {

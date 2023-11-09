@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/demeero/chat/bricks/apperr"
 	"github.com/gocql/gocql"
 )
 
@@ -34,6 +36,18 @@ type cqlMsg struct {
 	CreatedAt     time.Time `json:"created_at"`
 }
 
+func newCQLMsgs(data []map[string]interface{}) ([]cqlMsg, error) {
+	b, err := json.Marshal(data)
+	if err != nil {
+		return nil, fmt.Errorf("failed encode data: %w", err)
+	}
+	var cqlMsgs []cqlMsg
+	if err := json.Unmarshal(b, &cqlMsgs); err != nil {
+		return nil, fmt.Errorf("failed decode data: %w", err)
+	}
+	return cqlMsgs, nil
+}
+
 func (m cqlMsg) toMsg() Message {
 	return Message{
 		ID:  m.MsgID,
@@ -48,32 +62,71 @@ func (m cqlMsg) toMsg() Message {
 	}
 }
 
+// Pagination is the pagination parameters.
+type Pagination struct {
+	// PageToken is the token to get the next page.
+	pageToken []byte
+	// PageSize is the number of items per page.
+	pageSize uint16
+}
+
+func NewPagination(pageToken string, pageSize uint16) (Pagination, error) {
+	if pageSize < 1 {
+		pageSize = 30
+	}
+	if pageSize > 1000 {
+		pageSize = 1000
+	}
+	var tokenBytes []byte
+	if pageToken != "" {
+		b, err := base64.StdEncoding.DecodeString(pageToken)
+		if err != nil {
+			return Pagination{}, fmt.Errorf("%w: failed to decode token from base64: %s", apperr.ErrInvalidData, err)
+		}
+		tokenBytes = b
+	}
+	return Pagination{
+		pageSize:  pageSize,
+		pageToken: tokenBytes,
+	}, nil
+}
+
 type Loader struct {
 	Sess *gocql.Session
 }
 
-func (l *Loader) Load(ctx context.Context) ([]Message, error) {
-	iter := l.Sess.Query("SELECT * FROM chat.history WHERE chat_room_id = ? ORDER BY created_at ASC, msg_id ASC", roomChatID).
-		WithContext(ctx).
-		Iter()
+func (l *Loader) Load(ctx context.Context, p Pagination) ([]Message, string, error) {
+	q, err := l.buildQuery(ctx, int(p.pageSize), p.pageToken)
+	if err != nil {
+		return nil, "", fmt.Errorf("failed build query: %w", err)
+	}
+	iter := q.Iter()
 	data, err := iter.SliceMap()
 	if errors.Is(err, gocql.ErrNotFound) {
-		return nil, nil
+		return nil, "", nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("failed slice map: %w", err)
+		return nil, "", fmt.Errorf("failed slice map: %w", err)
 	}
-	b, err := json.Marshal(data)
+	cqlMsgs, err := newCQLMsgs(data)
 	if err != nil {
-		return nil, fmt.Errorf("failed encode data: %w", err)
+		return nil, "", fmt.Errorf("failed create cql messages: %w", err)
 	}
-	var cqlMsgs []cqlMsg
-	if err := json.Unmarshal(b, &cqlMsgs); err != nil {
-		return nil, fmt.Errorf("failed decode data: %w", err)
-	}
+	pageState := iter.PageState()
+	return l.convertFromCQLMsgs(cqlMsgs), base64.StdEncoding.EncodeToString(pageState), nil
+}
+
+func (l *Loader) convertFromCQLMsgs(cqlMsgs []cqlMsg) []Message {
 	msgs := make([]Message, 0, len(cqlMsgs))
 	for _, m := range cqlMsgs {
 		msgs = append(msgs, m.toMsg())
 	}
-	return msgs, nil
+	return msgs
+}
+
+func (l *Loader) buildQuery(ctx context.Context, pSize int, pToken []byte) (*gocql.Query, error) {
+	return l.Sess.Query("SELECT * FROM chat.history WHERE chat_room_id = ? ORDER BY created_at DESC, msg_id DESC", roomChatID).
+		WithContext(ctx).
+		PageState(pToken).
+		PageSize(pSize), nil
 }

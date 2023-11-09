@@ -43,7 +43,7 @@ type HTTPCorsCfg struct {
 }
 
 type Cassandra struct {
-	Host     string `default:"localhost" json:"host"`
+	Host     string `default:"localhost:9042" json:"host"`
 	Keyspace string `default:"chat" json:"keyspace"`
 	Log      bool   `json:"log"`
 }
