@@ -15,6 +15,7 @@ import (
 	"github.com/demeero/chat/bricks/tracer"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
+	_ "go.uber.org/automaxprocs"
 )
 
 func main() {

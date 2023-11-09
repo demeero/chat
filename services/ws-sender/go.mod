@@ -11,6 +11,7 @@ require (
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
 	github.com/redis/go-redis/v9 v9.2.1
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.45.0
+	go.uber.org/automaxprocs v1.5.3
 	golang.org/x/net v0.17.0
 )
 
