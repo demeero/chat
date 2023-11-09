@@ -1,0 +1,28 @@
+version: "3"
+
+tasks:
+
+  lint:go:
+    desc: Run Go linters
+    cmds:
+      - go install golang.org/x/tools/go/analysis/passes/fieldalignment/cmd/fieldalignment@latest
+      - cmd: fieldalignment -test=false -fix=true $(PWD)/...
+        ignore_error: true
+      - docker run --rm -v ${PWD}/:/app -w /app golangci/golangci-lint:v1.55-alpine golangci-lint run -v --fix --timeout=420s -c golangci.yml
+
+  run:backend:air:
+    desc: Run backend with air.
+    cmds:
+      - docker compose -f docker-compose.yaml -f docker-compose.air.yaml up -d --build
+      - docker compose -f docker-compose.yaml logs -f ws-sender ws-receiver history-writer history-loader
+
+  run:backend:
+    desc: Run backend
+    cmds:
+      - docker compose -f docker-compose.yaml up -d --build
+      - docker compose -f docker-compose.yaml logs -f ws-sender ws-receiver history-writer history-loader
+
+  stop:backend:
+    desc: Stop backend
+    cmds:
+      - docker compose -f docker-compose.yaml down
