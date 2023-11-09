@@ -21,6 +21,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/demeero/chat/bricks v0.0.0-20231109002606-086c933ed633 h1:+copTYq9B1OJmUbPdaMheET9pgx79HG3PFv19mOvR38=
 github.com/demeero/chat/bricks v0.0.0-20231109002606-086c933ed633/go.mod h1:MtiDgcjRf2T/JFRPanWz3/UasqG5B59A0XOe0Tpg94E=
+github.com/demeero/chat/bricks v0.0.0-20231109013203-bac1bfe356d9 h1:6TWeweWuf357UMK/nAgZMBywXkywADudesFZqfYeKoo=
+github.com/demeero/chat/bricks v0.0.0-20231109013203-bac1bfe356d9/go.mod h1:MtiDgcjRf2T/JFRPanWz3/UasqG5B59A0XOe0Tpg94E=
 github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0 h1:ew7c2ajBW7enU9IMYfPqwUuk5mF6r0NLoTU2w25JEFg=
 github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0/go.mod h1:cs6ezEkxdHQJxc6oAGR9YDOqbDZGIkoKDrtYCsAknW0=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=

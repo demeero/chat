@@ -8,6 +8,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/demeero/chat/bricks/logger"
 	"github.com/gocql/gocql"
 )
 
@@ -32,7 +33,8 @@ type msgStoredEvt struct {
 
 func msgEvtHandler(sess *gocql.Session) message.HandlerFunc {
 	return func(msg *message.Message) ([]*message.Message, error) {
-		subLogger := slog.With(slog.String("topic", topic))
+		subLogger := logger.InstrumentWithTrace(msg.Context(), slog.With(slog.String("topic", topic)))
+		msg.SetContext(logger.ToCtx(msg.Context(), subLogger))
 		subLogger.Debug("received redis evt", slog.String("payload", string(msg.Payload)))
 		evt := msgSentEvt{}
 		err := json.Unmarshal(msg.Payload, &evt)

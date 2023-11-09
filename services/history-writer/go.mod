@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-redisstream v1.2.2
-	github.com/demeero/chat/bricks v0.0.0-20231109002606-086c933ed633
+	github.com/demeero/chat/bricks v0.0.0-20231109013203-bac1bfe356d9
 	github.com/gocql/gocql v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/redis/go-redis/v9 v9.3.0
