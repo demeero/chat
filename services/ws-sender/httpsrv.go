@@ -31,10 +31,6 @@ func setupHTTPSrv(ctx context.Context, cfg Config, pub message.Publisher) *echo.
 		Port:              cfg.HTTP.Port,
 	})
 	e.Pre(echomw.RemoveTrailingSlash())
-	corsCfg := echomw.DefaultCORSConfig
-	corsCfg.AllowOrigins = cfg.HTTP.CORS.AllowedOrigins
-	corsCfg.AllowCredentials = true
-	e.Use(echomw.CORSWithConfig(corsCfg))
 	e.Use(httpsrv.RecoverMW())
 	e.Use(otelecho.Middleware(cfg.ServiceName))
 	e.Use(meterMW)

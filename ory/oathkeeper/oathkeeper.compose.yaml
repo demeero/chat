@@ -1,34 +1,27 @@
 serve:
   proxy:
     port: 4455
-  api:
-    port: 4456
     cors:
       enabled: true
       allowed_origins:
-        - http://127.0.0.1
-        - http://localhost
+        - http://localhost:5173
       allowed_methods:
         - POST
         - GET
         - PUT
         - PATCH
         - DELETE
-      allowed_headers:
-        - Origin
-        - Authorization
-        - Cookie
-        - Content-Type
-        - Accept
-      exposed_headers:
-        - Content-Type
-        - Set-Cookie
       allow_credentials: true
       debug: true
 
+  api:
+    port: 4456
+    cors:
+      enabled: true
+
 log:
-  level: trace
-  format: text
+  level: debug
+  format: json
   leak_sensitive_values: true
 
 authorizers:

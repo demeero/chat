@@ -35,11 +35,6 @@ type HTTPCfg struct {
 	WriteTimeout      time.Duration `default:"30s" split_words:"true" json:"write_timeout"`
 	Port              int           `default:"8083" split_words:"true" json:"port"`
 	ShutdownTimeout   time.Duration `default:"10s" split_words:"true" json:"shutdown_timeout"`
-	CORS              HTTPCorsCfg   `json:"cors"`
-}
-
-type HTTPCorsCfg struct {
-	AllowedOrigins []string `default:"http://localhost:5173" split_words:"true" json:"allowed_origins"`
 }
 
 type Cassandra struct {

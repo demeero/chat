@@ -1,25 +1,5 @@
 version: v0.13.0
 
-serve:
-  public:
-    base_url: http://127.0.0.1:4455/.ory/kratos/public/
-    cors:
-      enabled: true
-      allowed_headers:
-        - Origin
-        - Authorization
-        - Cookie
-        - Content-Type
-        - Accept
-      exposed_headers:
-        - Content-Type
-        - Set-Cookie
-      allowed_origins:
-        - http://localhost:5173
-
-  admin:
-    base_url: http://kratos:4434/
-
 selfservice:
   default_browser_return_url: http://127.0.0.1:4455/
 

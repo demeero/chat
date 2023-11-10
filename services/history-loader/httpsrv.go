@@ -30,10 +30,6 @@ func setupHTTPSrv(ctx context.Context, cfg Config, l Loader) *echo.Echo {
 		Port:              httpCfg.Port,
 	})
 	e.Pre(echomw.RemoveTrailingSlash())
-	corsCfg := echomw.DefaultCORSConfig
-	corsCfg.AllowOrigins = httpCfg.CORS.AllowedOrigins
-	corsCfg.AllowCredentials = true
-	e.Use(echomw.CORSWithConfig(corsCfg))
 	e.Use(httpsrv.RecoverMW())
 	e.Use(otelecho.Middleware(cfg.ServiceName))
 	e.Use(meterMW)
@@ -43,6 +39,9 @@ func setupHTTPSrv(ctx context.Context, cfg Config, l Loader) *echo.Echo {
 
 	e.GET("/history", func(c echo.Context) error {
 		pSize := c.QueryParam("page_size")
+		if pSize == "" {
+			pSize = "0"
+		}
 		pSizeInt, err := strconv.Atoi(pSize)
 		if err != nil {
 			return fmt.Errorf("%w: failed parse page size: %s", apperr.ErrInvalidData, err)
