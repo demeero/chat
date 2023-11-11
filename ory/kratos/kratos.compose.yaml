@@ -11,6 +11,7 @@ selfservice:
     login:
       lifespan: 10m
     registration:
+      login_hints: true
       lifespan: 10m
       after:
         password:
@@ -19,8 +20,9 @@ selfservice:
 
 log:
   level: debug
-  format: text
-  leak_sensitive_values: true
+  format: json
+  leak_sensitive_values: false
+  redaction_text: "###"
 
 secrets:
   cookie:
