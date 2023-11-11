@@ -21,6 +21,7 @@ type MsgUser struct {
 
 type Message struct {
 	ID        string    `json:"id"`
+	PendingID string    `json:"pending_id"`
 	Msg       string    `json:"msg"`
 	User      MsgUser   `json:"user"`
 	CreatedAt time.Time `json:"created_at"`
@@ -28,6 +29,7 @@ type Message struct {
 
 type cqlMsg struct {
 	MsgID         string    `json:"msg_id"`
+	PendingID     string    `json:"pending_id"`
 	Msg           string    `json:"msg"`
 	UserID        string    `json:"user_id"`
 	UserEmail     string    `json:"user_email"`
@@ -50,8 +52,9 @@ func newCQLMsgs(data []map[string]interface{}) ([]cqlMsg, error) {
 
 func (m cqlMsg) toMsg() Message {
 	return Message{
-		ID:  m.MsgID,
-		Msg: m.Msg,
+		PendingID: m.PendingID,
+		ID:        m.MsgID,
+		Msg:       m.Msg,
 		User: MsgUser{
 			ID:        m.UserID,
 			Email:     m.UserEmail,
