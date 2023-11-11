@@ -17,7 +17,8 @@ import (
 )
 
 type wsMsgEvt struct {
-	Msg string `json:"msg"`
+	PendingID string `json:"pending_id"`
+	Msg       string `json:"msg"`
 }
 
 type msgEvtUser struct {
@@ -29,13 +30,15 @@ type msgEvtUser struct {
 
 type msgEvt struct {
 	Msg       string     `json:"msg"`
+	PendingID string     `json:"pending_id"`
 	User      msgEvtUser `json:"user"`
 	CreatedAt time.Time  `json:"created_at"`
 }
 
-func newMsgEvt(msg string, sess session.Session) msgEvt {
+func newMsgEvt(pendingID, msg string, sess session.Session) msgEvt {
 	return msgEvt{
-		Msg: msg,
+		Msg:       msg,
+		PendingID: pendingID,
 		User: msgEvtUser{
 			ID:        sess.Identity.ID,
 			Email:     sess.Identity.Traits.Email,
@@ -65,15 +68,15 @@ func (s Sender) Execute(ws *websocket.Conn) {
 			return
 		}
 		lg.Debug("received ws evt", slog.Any("evt", wsEvt))
-		if err := s.publish(ws.Request().Context(), wsEvt.Msg); err != nil {
+		if err := s.publish(ws.Request().Context(), wsEvt); err != nil {
 			lg.Error("failed publish evt", slog.Any("err", err))
 			return
 		}
 	}
 }
 
-func (s Sender) publish(ctx context.Context, msg string) error {
-	b, err := json.Marshal(newMsgEvt(msg, s.Sess))
+func (s Sender) publish(ctx context.Context, evt wsMsgEvt) error {
+	b, err := json.Marshal(newMsgEvt(evt.PendingID, evt.Msg, s.Sess))
 	if err != nil {
 		return fmt.Errorf("failed encode evt: %w", err)
 	}
