@@ -20,6 +20,7 @@ type msgEvtUser struct {
 }
 
 type msgSentEvt struct {
+	PendingID string     `json:"pending_id"`
 	Msg       string     `json:"msg"`
 	User      msgEvtUser `json:"user"`
 	CreatedAt time.Time  `json:"created_at"`
@@ -44,8 +45,8 @@ func msgEvtHandler(sess *gocql.Session) message.HandlerFunc {
 			return nil, fmt.Errorf("failed decode msg: %w", err)
 		}
 		msgID := gocql.TimeUUID()
-		err = sess.Query("INSERT INTO chat.history (chat_room_id, msg_id, msg, user_id, user_email, user_first_name, user_last_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-			roomChatID, msgID, evt.Msg, evt.User.ID, evt.User.Email, evt.User.FirstName, evt.User.LastName, evt.CreatedAt).
+		err = sess.Query("INSERT INTO chat.history (chat_room_id, msg_id, msg, user_id, user_email, user_first_name, user_last_name, created_at, pending_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			roomChatID, msgID, evt.Msg, evt.User.ID, evt.User.Email, evt.User.FirstName, evt.User.LastName, evt.CreatedAt, evt.PendingID).
 			WithContext(msg.Context()).
 			Exec()
 		if err != nil {
