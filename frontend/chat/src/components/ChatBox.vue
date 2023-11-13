@@ -5,7 +5,7 @@ import {vScroll} from '@vueuse/components'
 <template>
   <div ref="chatBox" v-scroll="onScroll" class="box" style="overflow-y: scroll; max-height: 600px;">
     <progress v-if="loadingHistory" class="progress is-large is-info" max="100">60%</progress>
-    <ChatMessage v-for="m in msgs" :key="m.pending_id" :msg=m :userId=userId/>
+    <ChatMessage v-for="m in msgs" :key="m.pending_id" :msg=m :userId="userId"/>
     <span ref="chatBottom"></span>
   </div>
 </template>

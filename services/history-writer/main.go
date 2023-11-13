@@ -53,7 +53,7 @@ func main() {
 		cassandra.MeterQueryObserver{})
 	cSess, err := cluster.CreateSession()
 	if err != nil {
-		log.Fatalf("failed create cassandra session: %s", err)
+		log.Fatalf("failed create scylladb session: %s", err)
 	}
 	defer cSess.Close()
 

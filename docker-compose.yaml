@@ -55,7 +55,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      cassandra:
+      scylladb:
         condition: service_healthy
 
   history-loader:
@@ -69,7 +69,7 @@ services:
       mode: replicated
       replicas: 2
     depends_on:
-      cassandra:
+      scylladb:
         condition: service_healthy
       oathkeeper:
         condition: service_healthy
@@ -177,17 +177,17 @@ services:
     ports:
       - "6379:6379"
 
-  cassandra:
+  scylladb:
     restart: on-failure
-    image: cassandra:5.0
+    image: scylladb/scylla:5.2
     healthcheck:
       test: [ "CMD-SHELL", "[ $$(nodetool statusgossip) = running ]" ]
-      interval: 2s
+      interval: 3s
       timeout: 3s
       retries: 10
-      start_period: 8s
+      start_period: 5s
     volumes:
-      - cassandra-data:/var/lib/cassandra
+      - scylladb-data:/var/lib/scylla
     ports:
       - "9042:9042"
 
@@ -287,7 +287,7 @@ services:
 
 volumes:
   pg-data:
-  cassandra-data:
+  scylladb-data:
   minio-data:
   mimir-data:
   loki-data:

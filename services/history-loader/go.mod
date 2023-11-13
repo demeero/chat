@@ -12,6 +12,8 @@ require (
 	go.uber.org/automaxprocs v1.5.3
 )
 
+replace github.com/gocql/gocql => github.com/scylladb/gocql v1.12.0
+
 require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
