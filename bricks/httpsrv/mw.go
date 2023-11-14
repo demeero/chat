@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/MicahParks/keyfunc/v2"
+	"github.com/demeero/bricks/echobrick"
 	"github.com/demeero/chat/bricks/logger"
 	"github.com/demeero/chat/bricks/meter"
 	"github.com/demeero/chat/bricks/session"
@@ -145,7 +146,7 @@ func retrieveJWT(request *http.Request) (string, error) {
 func SessionCtxMW() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			sess := session.FromCtx(c.Request().Context())
+			sess := session.FromTokenClaims(echobrick.TokenClaimsFromCtx(c.Request().Context()))
 			c.SetRequest(c.Request().WithContext(session.ToCtx(c.Request().Context(), sess)))
 			return next(c)
 		}
