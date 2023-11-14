@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -43,8 +45,15 @@ type Redis struct {
 }
 
 type TelemetryCfg struct {
-	HttpOtelEndpoint string `default:"localhost:4318" split_words:"true" json:"http_otel_endpoint"`
-	GrpcOtelEndpoint string `default:"localhost:4317" split_words:"true" json:"grpc_otel_endpoint"`
+	MeterEndpoint string `default:"localhost:4318" json:"http_trace_endpoint" envconfig:"TELEMETRY_HTTP_METER_ENDPOINT"`
+	TraceEndpoint string `default:"localhost:4318" json:"http_meter_endpoint" envconfig:"TELEMETRY_HTTP_TRACE_ENDPOINT"`
+	Username      string `json:"-" envconfig:"TELEMETRY_HTTP_TRACE_ENDPOINT_USERNAME"`
+	Password      string `json:"-" envconfig:"TELEMETRY_HTTP_TRACE_ENDPOINT_PASSWORD"`
+}
+
+func (cfg TelemetryCfg) TraceBasicAuthHeader() map[string]string {
+	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", cfg.Username, cfg.Password)))
+	return map[string]string{"Authorization": "Basic " + auth}
 }
 
 func LoadConfig() Config {

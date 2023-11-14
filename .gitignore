@@ -22,3 +22,4 @@ bin
 .gitsecret/keys/random_seed
 !*.secret
 services/ws-sender/external.env
+services/ws-receiver/external.env

@@ -31,6 +31,7 @@ services:
       dockerfile: $PWD/services/ws-receiver/Dockerfile
     env_file:
       - $PWD/services/ws-receiver/.env
+      - $PWD/services/ws-receiver/external.env
     expose:
       - "8082"
     deploy:
@@ -186,7 +187,7 @@ services:
       interval: 3s
       timeout: 3s
       retries: 10
-      start_period: 10s
+      start_period: 12s
     volumes:
       - scylladb-data:/var/lib/scylla
     ports:

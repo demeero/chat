@@ -9,7 +9,7 @@ import (
 	"syscall"
 
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/demeero/chat/bricks/logger"
+	"github.com/demeero/bricks/slogbrick"
 	wotelfloss "github.com/dentech-floss/watermill-opentelemetry-go-extra/pkg/opentelemetry"
 	wotel "github.com/voi-oss/watermill-opentelemetry/pkg/opentelemetry"
 	"golang.org/x/net/websocket"
@@ -30,7 +30,7 @@ func (s Subscriber) Subscribe(ctx context.Context, ws *websocket.Conn) error {
 
 	h := msgHandler(ws)
 
-	lg := logger.FromCtx(ws.Request().Context()).With(slog.String("topic", s.Topic))
+	lg := slogbrick.FromCtx(ws.Request().Context()).With(slog.String("topic", s.Topic))
 	for msg := range msgs {
 		lg.Debug("received redis evt",
 			slog.String("payload", string(msg.Payload)),

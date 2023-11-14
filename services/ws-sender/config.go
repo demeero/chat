@@ -40,7 +40,7 @@ type HTTPCfg struct {
 }
 
 type TelemetryCfg struct {
-	MeterEndpoint string `default:"localhost:4318" json:"http_otel_endpoint" envconfig:"TELEMETRY_HTTP_METER_ENDPOINT"`
+	MeterEndpoint string `default:"localhost:4318" json:"http_trace_endpoint" envconfig:"TELEMETRY_HTTP_METER_ENDPOINT"`
 	TraceEndpoint string `default:"localhost:4318" json:"http_meter_endpoint" envconfig:"TELEMETRY_HTTP_TRACE_ENDPOINT"`
 	Username      string `json:"-" envconfig:"TELEMETRY_HTTP_TRACE_ENDPOINT_USERNAME"`
 	Password      string `json:"-" envconfig:"TELEMETRY_HTTP_TRACE_ENDPOINT_PASSWORD"`
