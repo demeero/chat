@@ -22,6 +22,12 @@ tasks:
       - docker compose -f docker-compose.yaml up -d --build
       - docker compose -f docker-compose.yaml logs -f ws-sender ws-receiver history-writer history-loader
 
+  run:backend:external:
+    desc: Run backend
+    cmds:
+      - docker compose -f docker-compose.external.yaml up -d --build
+      - docker compose -f docker-compose.external.yaml logs -f ws-sender ws-receiver history-writer history-loader
+
   stop:backend:
     desc: Stop backend
     cmds:

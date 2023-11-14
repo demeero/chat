@@ -33,9 +33,9 @@ func main() {
 		ServiceName:           cfg.ServiceName,
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
-		OTELHTTPEndpoint:      cfg.Telemetry.HttpOtelEndpoint,
+		OTELHTTPEndpoint:      cfg.Telemetry.TraceEndpoint,
 		Insecure:              true,
-		Headers:               map[string]string{"Authorization": "Basic ZGVtZWVybzohUWVkdzExcXE="},
+		Headers:               cfg.Telemetry.TraceBasicAuthHeader(),
 	})
 	if err != nil {
 		log.Fatalf("failed init tracer: %s", err)
@@ -45,7 +45,7 @@ func main() {
 		ServiceName:           cfg.ServiceName,
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
-		OTELHTTPEndpoint:      cfg.Telemetry.HttpOtelEndpoint,
+		OTELHTTPEndpoint:      cfg.Telemetry.MeterEndpoint,
 		Insecure:              true,
 		RuntimeMetrics:        true,
 		HostMetrics:           true,

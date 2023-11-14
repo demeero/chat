@@ -1,0 +1,264 @@
+version: '3.8'
+
+name: chat
+
+services:
+
+  ws-sender:
+    restart: on-failure
+    build:
+      context: $PWD/services/ws-sender/
+      dockerfile: $PWD/services/ws-sender/Dockerfile
+    env_file:
+      - $PWD/services/ws-sender/.env
+      - $PWD/services/ws-sender/external.env
+    expose:
+      - "8081"
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+    depends_on:
+      redis:
+        condition: service_healthy
+      oathkeeper:
+        condition: service_healthy
+
+  ws-receiver:
+    restart: on-failure
+    build:
+      context: $PWD/services/ws-receiver/
+      dockerfile: $PWD/services/ws-receiver/Dockerfile
+    env_file:
+      - $PWD/services/ws-receiver/.env
+    expose:
+      - "8082"
+    deploy:
+      mode: replicated
+      replicas: 2
+      endpoint_mode: dnsrr
+    depends_on:
+      redis:
+        condition: service_healthy
+      oathkeeper:
+        condition: service_healthy
+
+  history-writer:
+    restart: on-failure
+    build:
+      context: $PWD/services/history-writer/
+      dockerfile: $PWD/services/history-writer/Dockerfile
+    env_file:
+      - $PWD/services/history-writer/.env
+    deploy:
+      mode: replicated
+      replicas: 2
+    depends_on:
+      redis:
+        condition: service_healthy
+      scylladb:
+        condition: service_healthy
+
+  history-loader:
+    restart: on-failure
+    build:
+      context: $PWD/services/history-loader/
+      dockerfile: $PWD/services/history-loader/Dockerfile
+    env_file:
+      - $PWD/services/history-loader/.env
+    deploy:
+      mode: replicated
+      replicas: 2
+    depends_on:
+      scylladb:
+        condition: service_healthy
+      oathkeeper:
+        condition: service_healthy
+
+  kratos:
+    image: oryd/kratos:v1.0
+    restart: on-failure
+    container_name: kratos
+    healthcheck:
+      test: >
+        wget --no-verbose --tries=1 --spider http://localhost:4433/health/alive || exit 1
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 5
+    volumes:
+      - type: bind
+        source: ./ory/kratos
+        target: /etc/config/
+    command: -c /etc/config/kratos.compose.yaml serve --dev --watch-courier
+    environment:
+      - DSN=postgres://local:local@postgres:5432/chat?sslmode=disable&max_conns=20&max_idle_conns=4
+      - SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4455/.ory/kratos/public/
+    depends_on:
+      kratos-migrate:
+        condition: service_completed_successfully
+      mailslurper:
+        condition: service_started
+    ports:
+      - '4433:4433' # public
+      - '4434:4434' # admin
+
+  kratos-migrate:
+    image: oryd/kratos:v1.0
+    restart: on-failure
+    container_name: kratos-migrate
+    volumes:
+      - type: bind
+        source: ./ory/kratos
+        target: /etc/config/kratos
+    command:
+      migrate sql -e --yes
+    environment:
+      - DSN=postgres://local:local@postgres:5432/chat?sslmode=disable&max_conns=20&max_idle_conns=4
+    depends_on:
+      - postgres
+
+  oathkeeper:
+    image: oryd/oathkeeper:v0.40
+    depends_on:
+      - kratos
+    ports:
+      - "4455:4455"
+      - "4456:4456"
+    command:
+      serve proxy -c "/etc/config/oathkeeper.compose.yaml"
+    environment:
+      - LOG_LEVEL=debug
+    restart: on-failure
+    healthcheck:
+      test: >
+        wget --no-verbose --tries=1 --spider --header="Origin: http://localhost" http://localhost:4456/health/alive || exit 1
+      interval: 20s
+      timeout: 5s
+      start_period: 5s
+      retries: 5
+    volumes:
+      - ./ory/oathkeeper:/etc/config
+
+  mailslurper:
+    image: oryd/mailslurper:latest-smtps
+    restart: on-failure
+    container_name: mailslurper
+    ports:
+      - '4436:4436'
+      - '4437:4437'
+
+  postgres:
+    image: postgres:16.0-alpine3.18
+    container_name: postgres
+    restart: on-failure
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: chat
+      POSTGRES_USER: local
+      POSTGRES_PASSWORD: local
+    healthcheck:
+      test: pg_isready -U local -d chat
+      interval: 1s
+      timeout: 3s
+      retries: 5
+      start_period: 2s
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.2.2-alpine3.18
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "6379:6379"
+
+  scylladb:
+    restart: on-failure
+    image: scylladb/scylla:5.2
+    healthcheck:
+      test: [ "CMD-SHELL", "[ $$(nodetool statusgossip) = running ]" ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - scylladb-data:/var/lib/scylla
+    ports:
+      - "9042:9042"
+
+  otel-collector:
+    restart: on-failure
+    image: otel/opentelemetry-collector:0.88.0
+    command: [ "--config=/etc/otel.yaml" ]
+    expose:
+      - "4318" # HTTP otel receiver
+      - "8889" # Prometheus exporter metrics
+    volumes:
+      - ./otel.yaml:/etc/otel.yaml
+    ports:
+      - "1888:1888" # pprof extension
+      - "8888:8888" # Prometheus metrics exposed by the collector
+      - "8889:8889" # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP http receiver
+      - "55679:55679" # zpages extension
+
+  grafana:
+    restart: on-failure
+    image: grafana/grafana:10.2.0
+    volumes:
+      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/provisioning-datasources.yaml:ro
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_USERS_DEFAULT_THEME=dark
+      - GF_LOG_MODE=console
+      - GF_LOG_LEVEL=info
+    ports:
+      - "9000:3000"
+
+  mimir:
+    restart: on-failure
+    image: grafana/mimir:latest
+    command: [ "-config.file=/etc/mimir.yaml" ]
+    hostname: mimir-1
+    ports:
+      - "9001:8080"
+    volumes:
+      - ./mimir.yaml:/etc/mimir.yaml
+      - mimir-data:/data
+
+  loki:
+    image: grafana/loki:2.9.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki-data:/loki
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      # custom config will read logs from the containers of
+      # this project
+      - ./promtail.yaml:/etc/promtail/config.yml
+      # to read container labels and logs
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers
+
+volumes:
+  pg-data:
+  scylladb-data:
+  minio-data:
+  mimir-data:
+  loki-data:
+  grafana_data:

@@ -19,3 +19,6 @@ bin
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+.gitsecret/keys/random_seed
+!*.secret
+services/ws-sender/external.env
