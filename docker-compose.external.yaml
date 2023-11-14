@@ -51,6 +51,7 @@ services:
       dockerfile: $PWD/services/history-writer/Dockerfile
     env_file:
       - $PWD/services/history-writer/.env
+      - $PWD/services/history-writer/external.env
     deploy:
       mode: replicated
       replicas: 2

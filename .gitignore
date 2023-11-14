@@ -23,3 +23,4 @@ bin
 !*.secret
 services/ws-sender/external.env
 services/ws-receiver/external.env
+services/history-writer/external.env
