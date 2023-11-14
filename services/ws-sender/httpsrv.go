@@ -7,8 +7,11 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"time"
 
+	"github.com/MicahParks/keyfunc/v2"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/demeero/bricks/echobrick"
 	"github.com/demeero/chat/bricks/httpsrv"
 	"github.com/demeero/chat/bricks/session"
 	"github.com/labstack/echo/v4"
@@ -20,7 +23,20 @@ import (
 const topic = "msg_sent"
 
 func setupHTTPSrv(ctx context.Context, cfg Config, pub message.Publisher) *echo.Echo {
-	meterMW, err := httpsrv.Meter()
+	meterMW, err := echobrick.OTELMeterMW(echobrick.OTELMeterMWConfig{
+		Attrs: &echobrick.OTELMeterAttrsConfig{
+			Method:     true,
+			Path:       true,
+			Status:     true,
+			AttrsToCtx: true,
+		},
+		Metrics: &echobrick.OTELMeterMetricsConfig{
+			LatencyHist:  true,
+			ReqCounter:   true,
+			ReqSizeHist:  true,
+			RespSizeHist: true,
+		},
+	})
 	if err != nil {
 		log.Fatalf("failed create meter middleware: %s", err)
 	}
@@ -31,12 +47,22 @@ func setupHTTPSrv(ctx context.Context, cfg Config, pub message.Publisher) *echo.
 		Port:              cfg.HTTP.Port,
 	})
 	e.Pre(echomw.RemoveTrailingSlash())
-	e.Use(httpsrv.RecoverMW())
+	e.Use(echobrick.RecoverSlogMW())
 	e.Use(otelecho.Middleware(cfg.ServiceName))
 	e.Use(meterMW)
-	e.Use(httpsrv.LogCtxMW())
-	e.Use(httpsrv.TokenMW(ctx, cfg.JwksURL))
-	e.Use(httpsrv.LogMW(slog.LevelDebug))
+	e.Use(echobrick.SlogCtxMW(echobrick.LogCtxMWConfig{Trace: true}))
+	e.Use(echobrick.TokenClaimsMW(cfg.JwksURL, keyfunc.Options{
+		Ctx: ctx,
+		RefreshErrorHandler: func(err error) {
+			slog.Error("failed to refresh jwks", slog.Any("err", err))
+		},
+		RefreshInterval:   time.Minute,
+		RefreshRateLimit:  time.Second * 20,
+		RefreshTimeout:    time.Second * 10,
+		RefreshUnknownKID: true,
+	}))
+	e.Use(httpsrv.SessionCtxMW())
+	e.Use(echobrick.SlogLogMW(slog.LevelDebug, nil))
 
 	e.GET("/sender", sender(ctx, pub))
 

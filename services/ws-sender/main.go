@@ -9,10 +9,9 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-redisstream/pkg/redisstream"
-	"github.com/demeero/chat/bricks/logger"
-	"github.com/demeero/chat/bricks/meter"
-	"github.com/demeero/chat/bricks/tracer"
-	"github.com/demeero/chat/bricks/watermillbrick"
+	"github.com/demeero/bricks/otelbrick"
+	"github.com/demeero/bricks/slogbrick"
+	"github.com/demeero/bricks/watermillbrick"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	_ "go.uber.org/automaxprocs"
@@ -20,7 +19,7 @@ import (
 
 func main() {
 	cfg := LoadConfig()
-	logger.Configure(logger.Config{
+	slogbrick.Configure(slogbrick.Config{
 		Level:     cfg.Log.Level,
 		AddSource: cfg.Log.AddSource,
 		JSON:      cfg.Log.JSON,
@@ -30,22 +29,23 @@ func main() {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
 	defer cancel()
 
-	traceShutdown, err := tracer.Init(ctx, tracer.Config{
+	traceShutdown, err := otelbrick.InitTrace(ctx, otelbrick.TraceConfig{
 		ServiceName:           cfg.ServiceName,
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
-		OTELEndpoint:          cfg.Telemetry.GrpcOtelEndpoint,
+		OTELHTTPEndpoint:      cfg.Telemetry.HttpOtelEndpoint,
 		Insecure:              true,
+		Headers:               map[string]string{"Authorization": "Basic ZGVtZWVybzohUWVkdzExcXE="},
 	})
 	if err != nil {
 		log.Fatalf("failed init tracer: %s", err)
 	}
 
-	meterShutdown, err := meter.Init(ctx, meter.Config{
+	meterShutdown, err := otelbrick.InitMeter(ctx, otelbrick.MeterConfig{
 		ServiceName:           cfg.ServiceName,
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
-		OTELEndpoint:          cfg.Telemetry.HttpOtelEndpoint,
+		OTELHTTPEndpoint:      cfg.Telemetry.HttpOtelEndpoint,
 		Insecure:              true,
 		RuntimeMetrics:        true,
 		HostMetrics:           true,
@@ -66,7 +66,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed create redisstream publisher: %s", err)
 	}
-	publisher, err := watermillbrick.NewPublisher(watermillbrick.PubConfig{
+	publisher, err := watermillbrick.NewOTELPublisher(watermillbrick.OTELPubConfig{
 		Name:                "ws-sender",
 		Metrics:             true,
 		NewRootSpanWithLink: true,

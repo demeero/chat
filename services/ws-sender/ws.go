@@ -11,7 +11,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
-	"github.com/demeero/chat/bricks/logger"
+	"github.com/demeero/bricks/slogbrick"
 	"github.com/demeero/chat/bricks/session"
 	"golang.org/x/net/websocket"
 )
@@ -62,7 +62,7 @@ func (s Sender) Execute(ws *websocket.Conn) {
 		if errors.Is(err, io.EOF) {
 			return
 		}
-		lg := logger.FromCtx(ws.Request().Context())
+		lg := slogbrick.FromCtx(ws.Request().Context())
 		if err != nil {
 			lg.Debug("failed receive ws evt", slog.Any("err", err))
 			return
