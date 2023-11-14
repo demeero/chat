@@ -6,8 +6,8 @@ require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-redisstream v1.2.2
-	github.com/demeero/bricks v0.0.0-20231114191025-bc2897760df8
-	github.com/demeero/chat/bricks v0.0.0-20231114204833-8ecb74588bf0
+	github.com/demeero/bricks v0.0.0-20231114210009-b7a864ed484d
+	github.com/demeero/chat/bricks v0.0.0-20231114211856-1a248cdc38d5
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.11.3
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
