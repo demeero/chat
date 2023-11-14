@@ -142,6 +142,16 @@ func retrieveJWT(request *http.Request) (string, error) {
 	return h[1], nil
 }
 
+func SessionCtxMW() echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			sess := session.FromCtx(c.Request().Context())
+			c.SetRequest(c.Request().WithContext(session.ToCtx(c.Request().Context(), sess)))
+			return next(c)
+		}
+	}
+}
+
 // Meter is a middleware that records metrics for each request.
 func Meter() (echo.MiddlewareFunc, error) {
 	httpMeter := otel.GetMeterProvider().Meter("http-server")
