@@ -68,6 +68,7 @@ services:
       dockerfile: $PWD/services/history-loader/Dockerfile
     env_file:
       - $PWD/services/history-loader/.env
+      - $PWD/services/history-loader/external.env
     deploy:
       mode: replicated
       replicas: 2
@@ -188,7 +189,7 @@ services:
       interval: 3s
       timeout: 3s
       retries: 10
-      start_period: 12s
+      start_period: 13s
     volumes:
       - scylladb-data:/var/lib/scylla
     ports:

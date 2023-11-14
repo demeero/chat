@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/demeero/chat/bricks/apperr"
+	"github.com/demeero/bricks/errbrick"
 	"github.com/gocql/gocql"
 )
 
@@ -84,7 +84,7 @@ func NewPagination(pageToken string, pageSize uint16) (Pagination, error) {
 	if pageToken != "" {
 		b, err := base64.StdEncoding.DecodeString(pageToken)
 		if err != nil {
-			return Pagination{}, fmt.Errorf("%w: failed to decode token from base64: %s", apperr.ErrInvalidData, err)
+			return Pagination{}, fmt.Errorf("%w: failed to decode token from base64: %s", errbrick.ErrInvalidData, err)
 		}
 		tokenBytes = b
 	}

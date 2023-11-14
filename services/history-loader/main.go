@@ -7,10 +7,9 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/demeero/chat/bricks/cassandra"
-	"github.com/demeero/chat/bricks/logger"
-	"github.com/demeero/chat/bricks/meter"
-	"github.com/demeero/chat/bricks/tracer"
+	"github.com/demeero/bricks/cqlbrick"
+	"github.com/demeero/bricks/otelbrick"
+	"github.com/demeero/bricks/slogbrick"
 	"github.com/gocql/gocql"
 	_ "go.uber.org/automaxprocs"
 )
@@ -25,7 +24,7 @@ func main() {
 	roomChatID = uuid
 
 	cfg := LoadConfig()
-	logger.Configure(logger.Config{
+	slogbrick.Configure(slogbrick.Config{
 		Level:     cfg.Log.Level,
 		AddSource: cfg.Log.AddSource,
 		JSON:      cfg.Log.JSON,
@@ -33,10 +32,14 @@ func main() {
 
 	cluster := gocql.NewCluster(cfg.Cassandra.Host)
 	cluster.Keyspace = cfg.Cassandra.Keyspace
-	cluster.QueryObserver = cassandra.NewObserverChain(
-		cassandra.LogQueryObserver{Disabled: !cfg.Cassandra.Log},
-		cassandra.TraceQueryObserver{},
-		cassandra.MeterQueryObserver{})
+	cqlMeterObsrvr, err := cqlbrick.NewOTELMeterQueryObserver(false)
+	if err != nil {
+		log.Fatalf("failed create cql meter observer: %s", err)
+	}
+	cluster.QueryObserver = cqlbrick.NewObserverChain(
+		cqlbrick.SlogLogQueryObserver{Disabled: !cfg.Cassandra.Log},
+		cqlbrick.NewOTELTraceQueryObserver(false),
+		cqlMeterObsrvr)
 	cSess, err := cluster.CreateSession()
 	if err != nil {
 		log.Fatalf("failed create cassandra session: %s", err)
@@ -46,22 +49,23 @@ func main() {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
 	defer cancel()
 
-	tracerShutdown, err := tracer.Init(ctx, tracer.Config{
+	traceShutdown, err := otelbrick.InitTrace(ctx, otelbrick.TraceConfig{
 		ServiceName:           cfg.ServiceName,
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
-		OTELEndpoint:          cfg.Telemetry.GrpcOtelEndpoint,
+		OTELHTTPEndpoint:      cfg.Telemetry.TraceEndpoint,
 		Insecure:              true,
+		Headers:               cfg.Telemetry.TraceBasicAuthHeader(),
 	})
 	if err != nil {
 		log.Fatalf("failed init tracer: %s", err)
 	}
 
-	meterShutdown, err := meter.Init(ctx, meter.Config{
+	meterShutdown, err := otelbrick.InitMeter(ctx, otelbrick.MeterConfig{
 		ServiceName:           cfg.ServiceName,
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
-		OTELEndpoint:          cfg.Telemetry.HttpOtelEndpoint,
+		OTELHTTPEndpoint:      cfg.Telemetry.MeterEndpoint,
 		Insecure:              true,
 		RuntimeMetrics:        true,
 		HostMetrics:           true,
@@ -85,7 +89,7 @@ func main() {
 	if err := meterShutdown(context.Background()); err != nil {
 		slog.Error("failed shutdown meter provider", slog.Any("err", err))
 	}
-	if err := tracerShutdown(context.Background()); err != nil {
+	if err := traceShutdown(context.Background()); err != nil {
 		slog.Error("failed shutdown tracer provider", slog.Any("err", err))
 	}
 	cSess.Close()

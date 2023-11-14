@@ -9,8 +9,11 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"time"
 
-	"github.com/demeero/chat/bricks/apperr"
+	"github.com/MicahParks/keyfunc/v2"
+	"github.com/demeero/bricks/echobrick"
+	"github.com/demeero/bricks/errbrick"
 	"github.com/demeero/chat/bricks/httpsrv"
 	"github.com/labstack/echo/v4"
 	echomw "github.com/labstack/echo/v4/middleware"
@@ -18,11 +21,24 @@ import (
 )
 
 func setupHTTPSrv(ctx context.Context, cfg Config, l Loader) *echo.Echo {
-	meterMW, err := httpsrv.Meter()
+	httpCfg := cfg.HTTP
+	meterMW, err := echobrick.OTELMeterMW(echobrick.OTELMeterMWConfig{
+		Attrs: &echobrick.OTELMeterAttrsConfig{
+			Method:     true,
+			Path:       true,
+			Status:     true,
+			AttrsToCtx: true,
+		},
+		Metrics: &echobrick.OTELMeterMetricsConfig{
+			LatencyHist:  true,
+			ReqCounter:   true,
+			ReqSizeHist:  true,
+			RespSizeHist: true,
+		},
+	})
 	if err != nil {
 		log.Fatalf("failed create meter middleware: %s", err)
 	}
-	httpCfg := cfg.HTTP
 	e := httpsrv.Configure(httpsrv.Config{
 		ReadHeaderTimeout: httpCfg.ReadHeaderTimeout,
 		ReadTimeout:       httpCfg.ReadTimeout,
@@ -30,12 +46,22 @@ func setupHTTPSrv(ctx context.Context, cfg Config, l Loader) *echo.Echo {
 		Port:              httpCfg.Port,
 	})
 	e.Pre(echomw.RemoveTrailingSlash())
-	e.Use(httpsrv.RecoverMW())
+	e.Use(echobrick.RecoverSlogMW())
 	e.Use(otelecho.Middleware(cfg.ServiceName))
 	e.Use(meterMW)
-	e.Use(httpsrv.LogCtxMW())
-	e.Use(httpsrv.TokenMW(ctx, cfg.JwksURL))
-	e.Use(httpsrv.LogMW(slog.LevelDebug))
+	e.Use(echobrick.SlogCtxMW(echobrick.LogCtxMWConfig{Trace: true}))
+	e.Use(echobrick.TokenClaimsMW(cfg.JwksURL, keyfunc.Options{
+		Ctx: ctx,
+		RefreshErrorHandler: func(err error) {
+			slog.Error("failed to refresh jwks", slog.Any("err", err))
+		},
+		RefreshInterval:   time.Minute,
+		RefreshRateLimit:  time.Second * 20,
+		RefreshTimeout:    time.Second * 10,
+		RefreshUnknownKID: true,
+	}))
+	e.Use(httpsrv.SessionCtxMW())
+	e.Use(echobrick.SlogLogMW(slog.LevelDebug, nil))
 
 	e.GET("/history", func(c echo.Context) error {
 		pSize := c.QueryParam("page_size")
@@ -44,7 +70,7 @@ func setupHTTPSrv(ctx context.Context, cfg Config, l Loader) *echo.Echo {
 		}
 		pSizeInt, err := strconv.Atoi(pSize)
 		if err != nil {
-			return fmt.Errorf("%w: failed parse page size: %s", apperr.ErrInvalidData, err)
+			return fmt.Errorf("%w: failed parse page size: %s", errbrick.ErrInvalidData, err)
 		}
 		p, err := NewPagination(c.QueryParam("page_token"), uint16(pSizeInt))
 		if err != nil {
