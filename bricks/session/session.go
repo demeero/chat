@@ -87,7 +87,7 @@ func FromTokenClaims(claims jwt.MapClaims) Session {
 		slog.Error("failed convert session claims to map[string]interface{}")
 		return result
 	}
-	if err := mapstructure.Decode(data, &result); err != nil {
+	if err := mapstructure.WeakDecode(data, &result); err != nil {
 		slog.Error("failed decode session claims", slog.Any("err", err))
 		return result
 	}
