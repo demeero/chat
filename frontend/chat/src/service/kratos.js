@@ -29,7 +29,7 @@ export default class Kratos {
                             last: regData.lastName,
                         },
                     },
-                    csrf_token: this.#extractCSRFToken(createLoginFlowResp.data.ui?.nodes)
+                    csrf_token: this.#extractCSRFToken(createRegFlow.data.ui?.nodes)
                 },
             })
         } catch (err) {
