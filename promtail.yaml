@@ -3,7 +3,10 @@ server:
   grpc_listen_port: 0
 
 clients:
-  - url: http://loki:3100/loki/api/v1/push
+  #  - url: http://loki:3100/loki/api/v1/push
+  - url: ${CLIENT_URL}
+    headers:
+      Authorization: ${AUTH_HEADER}
 
 scrape_configs:
   - job_name: docker
@@ -14,8 +17,9 @@ scrape_configs:
         filters:
           - name: label
             values: [ "com.docker.compose.project=chat" ]
-    # use container name to create a loki label
     relabel_configs:
       - source_labels: [ '__meta_docker_container_name' ]
         regex: '/(.*)'
         target_label: 'container'
+      - source_labels: [ '__meta_docker_container_label_app' ]
+        target_label: 'job'
