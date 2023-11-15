@@ -217,56 +217,6 @@ services:
     ports:
       - "9042:9042"
 
-  otel-collector:
-    labels:
-      app: otel-collector
-    restart: on-failure
-    image: otel/opentelemetry-collector:0.88.0
-    command: [ "--config=/etc/otel.yaml" ]
-    expose:
-      - "4318" # HTTP otel receiver
-      - "8889" # Prometheus exporter metrics
-    volumes:
-      - ./otel.yaml:/etc/otel.yaml
-    ports:
-      - "1888:1888" # pprof extension
-      - "8888:8888" # Prometheus metrics exposed by the collector
-      - "8889:8889" # Prometheus exporter metrics
-      - "13133:13133" # health_check extension
-      - "4317:4317" # OTLP gRPC receiver
-      - "4318:4318" # OTLP http receiver
-      - "55679:55679" # zpages extension
-
-  grafana:
-    labels:
-      app: grafana
-    restart: on-failure
-    image: grafana/grafana:10.2.0
-    volumes:
-      - ./grafana-datasources.yaml:/etc/grafana/provisioning/datasources/provisioning-datasources.yaml:ro
-      - grafana_data:/var/lib/grafana
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_USERS_DEFAULT_THEME=dark
-      - GF_LOG_MODE=console
-      - GF_LOG_LEVEL=info
-    ports:
-      - "9000:3000"
-
-  mimir:
-    labels:
-      app: mimir
-    restart: on-failure
-    image: grafana/mimir:latest
-    command: [ "-config.file=/etc/mimir.yaml" ]
-    hostname: mimir-1
-    ports:
-      - "9001:8080"
-    volumes:
-      - ./mimir.yaml:/etc/mimir.yaml
-      - mimir-data:/data
-
   promtail:
     labels:
       app: promtail
@@ -285,5 +235,3 @@ services:
 volumes:
   pg-data:
   scylladb-data:
-  mimir-data:
-  grafana_data:

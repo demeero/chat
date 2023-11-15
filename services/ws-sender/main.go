@@ -47,9 +47,11 @@ func main() {
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
 		OTELHTTPEndpoint:      cfg.Telemetry.MeterEndpoint,
+		OTELHTTPPathPrefix:    cfg.Telemetry.PathPrefix,
 		Insecure:              true,
 		RuntimeMetrics:        true,
 		HostMetrics:           true,
+		Headers:               cfg.Telemetry.TraceBasicAuthHeader(),
 	})
 	if err != nil {
 		log.Fatalf("failed init metrics: %s", err)

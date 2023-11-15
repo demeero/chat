@@ -23,6 +23,10 @@ github.com/demeero/bricks v0.0.0-20231114210009-b7a864ed484d h1:WP7t71Gd6bnCKir0
 github.com/demeero/bricks v0.0.0-20231114210009-b7a864ed484d/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
 github.com/demeero/bricks v0.0.0-20231115063705-8159931f4e16 h1:hb1e2UN94Je4rEXivNZ32hJFXcO+/CKSwYYdktqv3og=
 github.com/demeero/bricks v0.0.0-20231115063705-8159931f4e16/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
+github.com/demeero/bricks v0.0.0-20231115183058-8ff70413d3f7 h1:wkUjoP19blpaBO31jjwBC9IAcIqzP9DlVeqp2yqKN0Q=
+github.com/demeero/bricks v0.0.0-20231115183058-8ff70413d3f7/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
+github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7 h1:fg8ZM43HJcHIYHTf7YpobrfahE3jhbIzrKJYrbo7jsw=
+github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
 github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0 h1:ew7c2ajBW7enU9IMYfPqwUuk5mF6r0NLoTU2w25JEFg=
 github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0/go.mod h1:cs6ezEkxdHQJxc6oAGR9YDOqbDZGIkoKDrtYCsAknW0=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=
