@@ -5,6 +5,8 @@ name: chat
 services:
 
   ws-sender:
+    labels:
+      app: ws-sender
     restart: on-failure
     build:
       context: $PWD/services/ws-sender/
@@ -25,6 +27,8 @@ services:
         condition: service_healthy
 
   ws-receiver:
+    labels:
+      app: ws-receiver
     restart: on-failure
     build:
       context: $PWD/services/ws-receiver/
@@ -45,6 +49,8 @@ services:
         condition: service_healthy
 
   history-writer:
+    labels:
+      app: history-writer
     restart: on-failure
     build:
       context: $PWD/services/history-writer/
@@ -62,6 +68,8 @@ services:
         condition: service_healthy
 
   history-loader:
+    labels:
+      app: history-loader
     restart: on-failure
     build:
       context: $PWD/services/history-loader/
@@ -79,6 +87,8 @@ services:
         condition: service_healthy
 
   kratos:
+    labels:
+      app: kratos
     image: oryd/kratos:v1.0
     restart: on-failure
     container_name: kratos
@@ -107,6 +117,8 @@ services:
       - '4434:4434' # admin
 
   kratos-migrate:
+    labels:
+      app: kratos-migrate
     image: oryd/kratos:v1.0
     restart: on-failure
     container_name: kratos-migrate
@@ -122,6 +134,8 @@ services:
       - postgres
 
   oathkeeper:
+    labels:
+      app: oathkeeper
     image: oryd/oathkeeper:v0.40
     depends_on:
       - kratos
@@ -144,6 +158,8 @@ services:
       - ./ory/oathkeeper:/etc/config
 
   mailslurper:
+    labels:
+      app: mailslurper
     image: oryd/mailslurper:latest-smtps
     restart: on-failure
     container_name: mailslurper
@@ -152,6 +168,8 @@ services:
       - '4437:4437'
 
   postgres:
+    labels:
+      app: postgres
     image: postgres:16.0-alpine3.18
     container_name: postgres
     restart: on-failure
@@ -171,6 +189,8 @@ services:
       - pg-data:/var/lib/postgresql/data
 
   redis:
+    labels:
+      app: redis
     image: redis:7.2.2-alpine3.18
     restart: on-failure
     healthcheck:
@@ -182,6 +202,8 @@ services:
       - "6379:6379"
 
   scylladb:
+    labels:
+      app: scylladb
     restart: on-failure
     image: scylladb/scylla:5.2
     healthcheck:
@@ -196,6 +218,8 @@ services:
       - "9042:9042"
 
   otel-collector:
+    labels:
+      app: otel-collector
     restart: on-failure
     image: otel/opentelemetry-collector:0.88.0
     command: [ "--config=/etc/otel.yaml" ]
@@ -214,6 +238,8 @@ services:
       - "55679:55679" # zpages extension
 
   grafana:
+    labels:
+      app: grafana
     restart: on-failure
     image: grafana/grafana:10.2.0
     volumes:
@@ -229,6 +255,8 @@ services:
       - "9000:3000"
 
   mimir:
+    labels:
+      app: mimir
     restart: on-failure
     image: grafana/mimir:latest
     command: [ "-config.file=/etc/mimir.yaml" ]
@@ -239,15 +267,9 @@ services:
       - ./mimir.yaml:/etc/mimir.yaml
       - mimir-data:/data
 
-  loki:
-    image: grafana/loki:2.9.0
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - loki-data:/loki
-
   promtail:
+    labels:
+      app: promtail
     image: grafana/promtail:2.9.0
     command: -config.file=/etc/promtail/config.yml
     volumes:
@@ -261,7 +283,5 @@ services:
 volumes:
   pg-data:
   scylladb-data:
-  minio-data:
   mimir-data:
-  loki-data:
   grafana_data:

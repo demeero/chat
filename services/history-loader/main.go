@@ -54,6 +54,7 @@ func main() {
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
 		OTELHTTPEndpoint:      cfg.Telemetry.TraceEndpoint,
+		OTELHTTPPathPrefix:    cfg.Telemetry.PathPrefix,
 		Insecure:              true,
 		Headers:               cfg.Telemetry.TraceBasicAuthHeader(),
 	})

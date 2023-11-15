@@ -5,7 +5,7 @@ go 1.21.1
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-redisstream v1.2.2
-	github.com/demeero/bricks v0.0.0-20231114210009-b7a864ed484d
+	github.com/demeero/bricks v0.0.0-20231115063705-8159931f4e16
 	github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0
 	github.com/gocql/gocql v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0

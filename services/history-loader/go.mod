@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
-	github.com/demeero/bricks v0.0.0-20231114234749-1707834bf671
+	github.com/demeero/bricks v0.0.0-20231115063705-8159931f4e16
 	github.com/demeero/chat/bricks v0.0.0-20231114233958-119053c85c1e
 	github.com/gocql/gocql v1.6.0
 	github.com/kelseyhightower/envconfig v1.4.0
