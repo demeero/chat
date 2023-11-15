@@ -105,7 +105,7 @@ services:
         target: /etc/config/
     command: -c /etc/config/kratos.compose.yaml serve --dev --watch-courier
     environment:
-      - DSN=postgres://local:local@postgres:5432/chat?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/kratoschat?sslmode=disable&max_conns=20&max_idle_conns=4
       - SERVE_PUBLIC_BASE_URL=http://127.0.0.1:4455/.ory/kratos/public/
     depends_on:
       kratos-migrate:
@@ -129,9 +129,14 @@ services:
     command:
       migrate sql -e --yes
     environment:
-      - DSN=postgres://local:local@postgres:5432/chat?sslmode=disable&max_conns=20&max_idle_conns=4
+      - DSN=postgres://${PG_USER}:${PG_PASS}@${PG_HOST}:${PG_PORT}/kratoschat?sslmode=disable&max_conns=20&max_idle_conns=4
     depends_on:
-      - postgres
+      postgres-create-db:
+        condition: service_completed_successfully
+
+  postgres-create-db:
+    image: postgres:16.0-alpine3.18
+    command: [ "sh", "-c", "psql -d $PG_DSN -c 'CREATE DATABASE kratoschat;' || true" ]
 
   oathkeeper:
     labels:
@@ -166,27 +171,6 @@ services:
     ports:
       - '4436:4436'
       - '4437:4437'
-
-  postgres:
-    labels:
-      app: postgres
-    image: postgres:16.0-alpine3.18
-    container_name: postgres
-    restart: on-failure
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_DB: chat
-      POSTGRES_USER: local
-      POSTGRES_PASSWORD: local
-    healthcheck:
-      test: pg_isready -U local -d chat
-      interval: 1s
-      timeout: 3s
-      retries: 5
-      start_period: 2s
-    volumes:
-      - pg-data:/var/lib/postgresql/data
 
   redis:
     labels:
@@ -223,7 +207,7 @@ services:
     image: grafana/promtail:2.9.0
     command: -config.file=/etc/promtail/config.yml -config.expand-env=true
     env_file:
-      - ./promtail.env
+      - ./secret.env
     volumes:
       # custom config will read logs from the containers of
       # this project
@@ -233,5 +217,4 @@ services:
       - /var/lib/docker/containers:/var/lib/docker/containers
 
 volumes:
-  pg-data:
   scylladb-data:

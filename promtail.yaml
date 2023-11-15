@@ -4,9 +4,9 @@ server:
 
 clients:
   #  - url: http://loki:3100/loki/api/v1/push
-  - url: ${CLIENT_URL}
+  - url: ${PROMTAIL_CLIENT_URL}
     headers:
-      Authorization: ${AUTH_HEADER}
+      Authorization: ${PROMTAIL_AUTH_HEADER}
 
 scrape_configs:
   - job_name: docker

@@ -25,7 +25,7 @@ tasks:
   run:backend:external:
     desc: Run backend
     cmds:
-      - docker compose -f docker-compose.external.yaml up -d --build
+      - docker compose -f docker-compose.external.yaml --env-file secret.env up -d --build
       - docker compose -f docker-compose.external.yaml logs -f ws-sender ws-receiver history-writer history-loader
 
   stop:backend:

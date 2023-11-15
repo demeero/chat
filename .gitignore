@@ -25,4 +25,4 @@ services/ws-sender/external.env
 services/ws-receiver/external.env
 services/history-writer/external.env
 services/history-loader/external.env
-promtail.env
+secret.env
