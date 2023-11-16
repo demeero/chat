@@ -19,8 +19,8 @@ export const useUserStore = defineStore('user', {
         async register(regData) {
             const kratos = new Kratos();
             try {
-                // TODO save session
-                await kratos.register(regData)
+                const regResp = await kratos.register(regData)
+                this.session = regResp.session;
             } catch (e) {
                 console.error('failed kratos register', e)
                 throw e;

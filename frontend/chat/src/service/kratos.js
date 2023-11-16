@@ -17,7 +17,7 @@ export default class Kratos {
     async register(regData) {
         try {
             const createRegFlow = await this.#kratos.createBrowserRegistrationFlow()
-            return await this.#kratos.updateRegistrationFlow({
+            const updateRegistrationFlow = await this.#kratos.updateRegistrationFlow({
                 flow: createRegFlow.data.id,
                 updateRegistrationFlowBody: {
                     method: 'password',
@@ -31,7 +31,8 @@ export default class Kratos {
                     },
                     csrf_token: this.#extractCSRFToken(createRegFlow.data.ui?.nodes)
                 },
-            })
+            });
+            return updateRegistrationFlow.data
         } catch (err) {
             this.#handleError(err);
         }
