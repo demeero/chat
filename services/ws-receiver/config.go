@@ -41,7 +41,9 @@ type HTTPCfg struct {
 }
 
 type Redis struct {
-	Addr string `default:"localhost:6379" json:"addr"`
+	Addr     string `default:"localhost:6379" json:"addr"`
+	Password string `json:"-"`
+	DB       int    `json:"db"`
 }
 
 type TelemetryCfg struct {

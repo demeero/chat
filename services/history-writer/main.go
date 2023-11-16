@@ -40,10 +40,6 @@ func main() {
 		JSON:      cfg.Log.JSON,
 	})
 
-	rdb := redis.NewClient(&redis.Options{
-		Addr: cfg.Redis.Addr,
-	})
-
 	cluster := gocql.NewCluster(cfg.Cassandra.Host)
 	cluster.Keyspace = cfg.Cassandra.Keyspace
 	cqlMeterObsrvr, err := cqlbrick.NewOTELMeterQueryObserver(false)
@@ -92,6 +88,7 @@ func main() {
 		log.Fatalf("failed init metrics: %s", err)
 	}
 
+	rdb := redis.NewClient(&redis.Options{Addr: cfg.Redis.Addr, Password: cfg.Redis.Password, DB: cfg.Redis.DB})
 	wmLogger := watermill.NewSlogLogger(slog.Default())
 	publisher, err := redisstream.NewPublisher(redisstream.PublisherConfig{Client: rdb}, wmLogger)
 	if err != nil {

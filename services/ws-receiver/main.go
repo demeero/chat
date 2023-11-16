@@ -57,7 +57,7 @@ func main() {
 		log.Fatalf("failed init metrics: %s", err)
 	}
 
-	rdb := redis.NewClient(&redis.Options{Addr: cfg.Redis.Addr})
+	rdb := redis.NewClient(&redis.Options{Addr: cfg.Redis.Addr, Password: cfg.Redis.Password, DB: cfg.Redis.DB})
 	if err := redisotel.InstrumentTracing(rdb, redisotel.WithDBStatement(true)); err != nil {
 		log.Fatalf("failed instrument redis with tracing: %s", err)
 	}

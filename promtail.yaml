@@ -3,10 +3,9 @@ server:
   grpc_listen_port: 0
 
 clients:
-  #  - url: http://loki:3100/loki/api/v1/push
   - url: ${PROMTAIL_CLIENT_URL}
     headers:
-      Authorization: ${PROMTAIL_AUTH_HEADER}
+      Authorization: ${AUTH_HEADER}
 
 scrape_configs:
   - job_name: docker

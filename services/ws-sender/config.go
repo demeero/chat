@@ -53,7 +53,9 @@ func (cfg TelemetryCfg) TraceBasicAuthHeader() map[string]string {
 }
 
 type Redis struct {
-	Addr string `default:"localhost:6379" json:"addr"`
+	Addr     string `default:"localhost:6379" json:"addr"`
+	Password string `json:"-"`
+	DB       int    `json:"db"`
 }
 
 func LoadConfig() Config {

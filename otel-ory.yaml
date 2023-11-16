@@ -1,0 +1,19 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+
+exporters:
+  otlphttp:
+    traces_endpoint: http://observability.demeero.space/otlphttp/v1/traces
+    headers:
+      Authorization: ${AUTH_HEADER}
+
+processors:
+  batch:
+
+service:
+  pipelines:
+    traces:
+      receivers: [ otlp ]
+      exporters: [ otlphttp ]
