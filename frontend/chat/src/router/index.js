@@ -1,4 +1,5 @@
 import {createRouter, createWebHistory} from 'vue-router'
+import {useUserStore} from "@/stores/user";
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,7 +16,7 @@ const router = createRouter({
         },
         {
             path: '/signup',
-            name: 'signip',
+            name: 'signup',
             component: () => import('../views/SignUp.vue')
         },
         {
@@ -26,11 +27,16 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-    // TODO: Fix this
-    // if (to.name !== 'signin' && to.name !== 'signup' && !useUserStore().session.active) {
-    //     return next({name: 'signin'});
-    // }
-    next();
+    if (useUserStore().session.active) {
+        if (to.name === 'signin' || to.name === 'signup') {
+            return next({name: 'chat'});
+        }
+        return next();
+    }
+    if (to.name === 'signup') {
+        return next();
+    }
+    return next({name: 'signin'});
 });
 
 export default router
