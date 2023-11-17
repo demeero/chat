@@ -6,10 +6,9 @@ require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-redisstream v1.2.2
-	github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7
+	github.com/demeero/bricks v0.0.0-20231117192004-e9e355a7b127
 	github.com/demeero/chat/bricks v0.0.0-20231114221838-6ac50126e32e
 	github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0
-	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.11.3
 	github.com/redis/go-redis/extra/redisotel/v9 v9.0.5
 	github.com/redis/go-redis/v9 v9.2.1
@@ -32,6 +31,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect

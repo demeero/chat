@@ -24,7 +24,7 @@ type Config struct {
 	Log     configbrick.Log   `json:"log"`
 	HTTP    configbrick.HTTP  `json:"http"`
 	JwksURL string            `split_words:"true" json:"jwks_url"`
-	OTEL    configbrick.OTEL  `json:"telemetry"`
+	OTEL    configbrick.OTEL  `json:"otel"`
 }
 
 func main() {
