@@ -6,7 +6,7 @@ require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-redisstream v1.2.2
-	github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7
+	github.com/demeero/bricks v0.0.0-20231117192004-e9e355a7b127
 	github.com/demeero/chat/bricks v0.0.0-20231114211856-1a248cdc38d5
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.11.3

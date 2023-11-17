@@ -31,6 +31,10 @@ github.com/demeero/bricks v0.0.0-20231115183058-8ff70413d3f7 h1:wkUjoP19blpaBO31
 github.com/demeero/bricks v0.0.0-20231115183058-8ff70413d3f7/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
 github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7 h1:fg8ZM43HJcHIYHTf7YpobrfahE3jhbIzrKJYrbo7jsw=
 github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
+github.com/demeero/bricks v0.0.0-20231117175040-32c27eed6609 h1:CVizhZ1ohtSQm1Iea+YitcGMc0F23Z8v1IZBv9D2Obc=
+github.com/demeero/bricks v0.0.0-20231117175040-32c27eed6609/go.mod h1:pEbfHApk2rBQSsQsvfWPEGpWi0unmTesbQDEYRQVYb4=
+github.com/demeero/bricks v0.0.0-20231117192004-e9e355a7b127 h1:0PxG74cImwRbClKk1pEwrlWQt8UYg6aIuzdUwb2v1oM=
+github.com/demeero/bricks v0.0.0-20231117192004-e9e355a7b127/go.mod h1:pEbfHApk2rBQSsQsvfWPEGpWi0unmTesbQDEYRQVYb4=
 github.com/demeero/chat/bricks v0.0.0-20231114193318-d4845c5e8f90 h1:fJYd0QSCoQfGvQbqJrBkM0ZXHl2s5jbwYFqW93mqXuE=
 github.com/demeero/chat/bricks v0.0.0-20231114193318-d4845c5e8f90/go.mod h1:U3mUI5Jx8/EVRSeEUJy+n2aWyee4aItB7mVmy1NVLD0=
 github.com/demeero/chat/bricks v0.0.0-20231114204833-8ecb74588bf0 h1:JFsZGTCFewKdkKrqVBctXinmvFKyt8c6USF4rRL4KEU=
