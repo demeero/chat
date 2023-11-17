@@ -4,10 +4,9 @@ go 1.21.1
 
 require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
-	github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7
+	github.com/demeero/bricks v0.0.0-20231117192004-e9e355a7b127
 	github.com/demeero/chat/bricks v0.0.0-20231114233958-119053c85c1e
 	github.com/gocql/gocql v1.6.0
-	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.11.3
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.45.0
 	go.uber.org/automaxprocs v1.5.3
@@ -26,6 +25,7 @@ require (
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0 // indirect
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

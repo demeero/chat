@@ -9,14 +9,8 @@ github.com/cenkalti/backoff/v4 v4.2.1/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyY
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/demeero/bricks v0.0.0-20231114234749-1707834bf671 h1:9JQ2E3Y/vtG84Kf//7CeYBUsYX1f/i7pNzSuurIkO4c=
-github.com/demeero/bricks v0.0.0-20231114234749-1707834bf671/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
-github.com/demeero/bricks v0.0.0-20231115063705-8159931f4e16 h1:hb1e2UN94Je4rEXivNZ32hJFXcO+/CKSwYYdktqv3og=
-github.com/demeero/bricks v0.0.0-20231115063705-8159931f4e16/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
-github.com/demeero/bricks v0.0.0-20231115183058-8ff70413d3f7 h1:wkUjoP19blpaBO31jjwBC9IAcIqzP9DlVeqp2yqKN0Q=
-github.com/demeero/bricks v0.0.0-20231115183058-8ff70413d3f7/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
-github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7 h1:fg8ZM43HJcHIYHTf7YpobrfahE3jhbIzrKJYrbo7jsw=
-github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7/go.mod h1:O70hlJDtfTuSo031KSMeqARIj1Gk2XzMdhw+girN4rM=
+github.com/demeero/bricks v0.0.0-20231117192004-e9e355a7b127 h1:0PxG74cImwRbClKk1pEwrlWQt8UYg6aIuzdUwb2v1oM=
+github.com/demeero/bricks v0.0.0-20231117192004-e9e355a7b127/go.mod h1:pEbfHApk2rBQSsQsvfWPEGpWi0unmTesbQDEYRQVYb4=
 github.com/demeero/chat/bricks v0.0.0-20231114233958-119053c85c1e h1:6aGmr6hIZZezrFGj67xA3gWiEagpENtxH6GEDed0b6w=
 github.com/demeero/chat/bricks v0.0.0-20231114233958-119053c85c1e/go.mod h1:fcRd3f/Glb13onuF7EwBbnxI15/CDzJr19zu2VcOfBk=
 github.com/go-logr/logr v1.2.2/go.mod h1:jdQByPbusPIv2/zmleS9BjJVeZ6kBagPoEUsqbVz/1A=

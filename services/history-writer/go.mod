@@ -5,10 +5,9 @@ go 1.21.1
 require (
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-redisstream v1.2.2
-	github.com/demeero/bricks v0.0.0-20231115184059-69910206f3d7
+	github.com/demeero/bricks v0.0.0-20231117192004-e9e355a7b127
 	github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0
 	github.com/gocql/gocql v1.6.0
-	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/voi-oss/watermill-opentelemetry v0.1.3
 	go.uber.org/automaxprocs v1.5.3
@@ -29,6 +28,7 @@ require (
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0 // indirect
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect

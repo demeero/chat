@@ -7,12 +7,22 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/demeero/bricks/configbrick"
 	"github.com/demeero/bricks/cqlbrick"
 	"github.com/demeero/bricks/otelbrick"
 	"github.com/demeero/bricks/slogbrick"
 	"github.com/gocql/gocql"
 	_ "go.uber.org/automaxprocs"
 )
+
+type Config struct {
+	configbrick.AppMeta
+	Cassandra configbrick.Cassandra `json:"cassandra"`
+	Log       configbrick.Log       `json:"log"`
+	HTTP      configbrick.HTTP      `json:"http"`
+	JwksURL   string                `split_words:"true" json:"jwks_url"`
+	OTEL      configbrick.OTEL      `json:"otel"`
+}
 
 var roomChatID gocql.UUID
 
@@ -23,7 +33,9 @@ func main() {
 	}
 	roomChatID = uuid
 
-	cfg := LoadConfig()
+	cfg := Config{}
+	configbrick.LoadConfig(&cfg, os.Getenv("LOG_CONFIG") == "true")
+
 	slogbrick.Configure(slogbrick.Config{
 		Level:     cfg.Log.Level,
 		AddSource: cfg.Log.AddSource,
@@ -49,29 +61,31 @@ func main() {
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt, os.Kill)
 	defer cancel()
 
+	traceCfg := cfg.OTEL.Trace
 	traceShutdown, err := otelbrick.InitTrace(ctx, otelbrick.TraceConfig{
 		ServiceName:           cfg.ServiceName,
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
-		OTELHTTPEndpoint:      cfg.Telemetry.TraceEndpoint,
-		OTELHTTPPathPrefix:    cfg.Telemetry.PathPrefix,
-		Insecure:              true,
-		Headers:               cfg.Telemetry.TraceBasicAuthHeader(),
+		OTELHTTPEndpoint:      traceCfg.Endpoint,
+		OTELHTTPPathPrefix:    traceCfg.PathPrefix,
+		Insecure:              traceCfg.Insecure,
+		Headers:               traceCfg.BasicAuthHeader(),
 	})
 	if err != nil {
 		log.Fatalf("failed init tracer: %s", err)
 	}
 
+	meterCfg := cfg.OTEL.Meter
 	meterShutdown, err := otelbrick.InitMeter(ctx, otelbrick.MeterConfig{
 		ServiceName:           cfg.ServiceName,
 		ServiceNamespace:      cfg.ServiceNamespace,
 		DeploymentEnvironment: cfg.Env,
-		OTELHTTPEndpoint:      cfg.Telemetry.MeterEndpoint,
-		OTELHTTPPathPrefix:    cfg.Telemetry.PathPrefix,
-		Insecure:              true,
+		OTELHTTPEndpoint:      meterCfg.Endpoint,
+		OTELHTTPPathPrefix:    meterCfg.PathPrefix,
+		Insecure:              meterCfg.Insecure,
 		RuntimeMetrics:        true,
 		HostMetrics:           true,
-		Headers:               cfg.Telemetry.TraceBasicAuthHeader(),
+		Headers:               meterCfg.BasicAuthHeader(),
 	})
 	if err != nil {
 		log.Fatalf("failed init metrics: %s", err)
