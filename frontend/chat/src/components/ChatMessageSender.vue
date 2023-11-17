@@ -1,12 +1,19 @@
 <template>
   <div class="columns is-centered is-gapless">
     <div class="column is-four-fifths">
-          <textarea v-model=msg class="textarea is-small" placeholder="Your message here..." required
-                    rows="2"></textarea>
+          <textarea v-model=msg
+                    :rows="rows"
+                    class="textarea is-small"
+                    placeholder="Your message here..."
+                    required
+                    v-on:keydown.enter.exact.prevent="send"
+                    v-on:keydown.enter.shift.exact.prevent="msg += '\n'"></textarea>
     </div>
     <div class="column">
-      <button :disabled="senderWS?.status !== 'OPEN' || !msg" class="button is-primary is-responsive"
-              type="submit" @click="send">Send
+      <button :disabled="senderWS?.status !== 'OPEN' || !msg"
+              class="button is-primary is-responsive"
+              type="submit"
+              @click="send">Send
       </button>
     </div>
   </div>
@@ -25,6 +32,7 @@ export default {
   },
   data() {
     return {
+      rows: 1,
       msg: '',
       senderWS: null,
     }
@@ -45,6 +53,16 @@ export default {
   },
   beforeUnmount() {
     this.senderWS?.close();
+  },
+  watch: {
+    msg: {
+      handler(newMsg, oldMsg) {
+        if (newMsg?.length > oldMsg?.length) {
+          this.rows = Math.min(5, Math.max(1, Math.ceil(newMsg.length / 50)))
+        }
+      },
+      immediate: true,
+    },
   },
   methods: {
     async send() {
