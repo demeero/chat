@@ -1,9 +1,10 @@
 <template>
-  <p :class="msg.user.id === userId ? 'has-text-left' : 'has-text-right'" class="content">
+  <p :class="msg.user.id === userId ? 'has-text-left' : 'has-text-right'" class="content"
+     style="overflow-wrap: anywhere;">
     <span class="is-size-6">{{ msg.user.first_name }} {{ msg.user.last_name }}</span>
     <span class="is-size-7 has-text-weight-light ml-1">{{ msg.user.email }}</span>
     <br/>
-    <span :class="msg.user.id === userId ? 'is-success' : 'is-info'" class="tag is-medium">
+    <span :class="msg.user.id === userId ? 'is-success' : 'is-info'" class="tag tag-msg is-medium">
             {{ msg.msg }}
           </span>
     <br/>
@@ -30,7 +31,7 @@ export default {
         id: {
           type: Number,
         },
-        message: {
+        msg: {
           type: String,
           required: true,
         },
@@ -62,3 +63,10 @@ export default {
   }
 }
 </script>
+<style>
+.tag-msg {
+  height: auto !important;
+  white-space: pre-wrap !important;
+  max-width: 50%;
+}
+</style>
