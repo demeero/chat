@@ -31,4 +31,9 @@ tasks:
   stop:backend:
     desc: Stop backend
     cmds:
-      - docker compose -f docker-compose.yaml down
+      - docker compose -f docker-compose.yaml down --remove-orphans
+
+  stop:backend:external:
+    desc: Stop backend
+    cmds:
+      - docker compose -f docker-compose.external.yaml down --remove-orphans

@@ -6,7 +6,7 @@ require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/ThreeDotsLabs/watermill v1.3.5
 	github.com/ThreeDotsLabs/watermill-redisstream v1.2.2
-	github.com/demeero/bricks v0.0.0-20231117225446-e9fc444ba1ff
+	github.com/demeero/bricks v0.0.0-20231118190215-571b2dce76ba
 	github.com/demeero/chat/bricks v0.0.0-20231117200343-875a03c786a5
 	github.com/dentech-floss/watermill-opentelemetry-go-extra v0.1.0
 	github.com/gocql/gocql v1.6.0

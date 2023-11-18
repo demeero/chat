@@ -60,8 +60,6 @@ services:
       replicas: 2
       endpoint_mode: dnsrr
     depends_on:
-      scylladb:
-        condition: service_healthy
       oathkeeper:
         condition: service_healthy
 
@@ -81,8 +79,6 @@ services:
       replicas: 2
       endpoint_mode: dnsrr
     depends_on:
-      scylladb:
-        condition: service_healthy
       oathkeeper:
         condition: service_healthy
 
@@ -171,22 +167,6 @@ services:
       - '4436:4436'
       - '4437:4437'
 
-  scylladb:
-    labels:
-      app: scylladb
-    restart: on-failure
-    image: scylladb/scylla:5.2
-    healthcheck:
-      test: [ "CMD-SHELL", "[ $$(nodetool statusgossip) = running ]" ]
-      interval: 3s
-      timeout: 3s
-      retries: 10
-      start_period: 13s
-    volumes:
-      - scylladb-data:/var/lib/scylla
-    ports:
-      - "9042:9042"
-
   promtail:
     labels:
       app: promtail
@@ -217,5 +197,3 @@ services:
     ports:
       - "4317:4317" # OTLP gRPC receiver
 
-volumes:
-  scylladb-data:

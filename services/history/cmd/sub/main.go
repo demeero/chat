@@ -44,6 +44,12 @@ func main() {
 	})
 
 	cluster := gocql.NewCluster(cfg.Cassandra.Host)
+	if cfg.Cassandra.Username != "" {
+		cluster.Authenticator = gocql.PasswordAuthenticator{
+			Username: cfg.Cassandra.Username,
+			Password: cfg.Cassandra.Password,
+		}
+	}
 	cluster.Keyspace = cfg.Cassandra.Keyspace
 	cqlMeterObsrvr, err := cqlbrick.NewOTELMeterQueryObserver(false)
 	if err != nil {
