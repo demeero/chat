@@ -26,3 +26,4 @@ services/ws-receiver/external.env
 services/history-writer/external.env
 services/history-loader/external.env
 secret.env
+services/history/external.env

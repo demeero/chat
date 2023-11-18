@@ -44,36 +44,42 @@ services:
       oathkeeper:
         condition: service_healthy
 
-  history-writer:
+  history-api:
     labels:
-      app: history-writer
+      app: history-api
     restart: on-failure
+    entrypoint: /usr/local/bin/historyapi
     build:
-      context: $PWD/services/history-writer/
-      dockerfile: $PWD/services/history-writer/Dockerfile
+      context: $PWD/services/history/
+      dockerfile: $PWD/services/history/Dockerfile
     env_file:
-      - $PWD/services/history-writer/.env
-      - $PWD/services/history-writer/external.env
+      - $PWD/services/history/.env
+      - $PWD/services/history/external.env
     deploy:
       mode: replicated
       replicas: 2
+      endpoint_mode: dnsrr
     depends_on:
       scylladb:
         condition: service_healthy
+      oathkeeper:
+        condition: service_healthy
 
-  history-loader:
+  history-sub:
     labels:
-      app: history-loader
+      app: history-sub
     restart: on-failure
+    entrypoint: /usr/local/bin/historysub
     build:
-      context: $PWD/services/history-loader/
-      dockerfile: $PWD/services/history-loader/Dockerfile
+      context: $PWD/services/history/
+      dockerfile: $PWD/services/history/Dockerfile
     env_file:
-      - $PWD/services/history-loader/.env
-      - $PWD/services/history-loader/external.env
+      - $PWD/services/history/.env
+      - $PWD/services/history/external.env
     deploy:
       mode: replicated
       replicas: 2
+      endpoint_mode: dnsrr
     depends_on:
       scylladb:
         condition: service_healthy

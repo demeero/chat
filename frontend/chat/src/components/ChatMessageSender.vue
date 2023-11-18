@@ -66,7 +66,11 @@ export default {
   },
   methods: {
     async send() {
-      this.senderWS?.send(JSON.stringify({pending_id: this.userId + Date.now(), msg: this.msg}))
+      this.senderWS?.send(JSON.stringify({
+        pending_id: this.userId + Date.now(),
+        msg: this.msg,
+        chat_room_id: '2f3025ab-9cf7-48a8-9f61-e0f5924ec6d4'
+      }))
       this.msg = ''
     },
   },

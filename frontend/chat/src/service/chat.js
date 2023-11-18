@@ -9,7 +9,7 @@ export default class Chat {
 
     async loadHistory(pageToken, pageSize) {
         try {
-            const resp = await axios.get(`${this.#baseURL}/history`, {
+            const resp = await axios.get(`${this.#baseURL}/history/2f3025ab-9cf7-48a8-9f61-e0f5924ec6d4`, {
                 withCredentials: true,
                 params: {
                     page_token: pageToken,

@@ -58,9 +58,10 @@
 - id: "history"
   upstream:
     preserve_host: true
-    url: "http://history-loader:8083"
+    url: "http://history-api:8083"
+    strip_path: /history
   match:
-    url: "<{http,https}>://<{localhost,127.0.0.1}{,:[0-9]*}>/history"
+    url: "<{http,https}>://<{localhost,127.0.0.1}{,:[0-9]*}>/history/<**>"
     methods:
       - GET
       - OPTIONS

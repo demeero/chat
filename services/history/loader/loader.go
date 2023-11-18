@@ -1,4 +1,4 @@
-package main
+package loader
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/demeero/bricks/errbrick"
 	"github.com/gocql/gocql"
 )
 
@@ -65,41 +64,16 @@ func (m cqlMsg) toMsg() Message {
 	}
 }
 
-// Pagination is the pagination parameters.
-type Pagination struct {
-	// PageToken is the token to get the next page.
-	pageToken []byte
-	// PageSize is the number of items per page.
-	pageSize uint16
-}
-
-func NewPagination(pageToken string, pageSize uint16) (Pagination, error) {
-	if pageSize < 1 {
-		pageSize = 30
-	}
-	if pageSize > 1000 {
-		pageSize = 1000
-	}
-	var tokenBytes []byte
-	if pageToken != "" {
-		b, err := base64.StdEncoding.DecodeString(pageToken)
-		if err != nil {
-			return Pagination{}, fmt.Errorf("%w: failed to decode token from base64: %s", errbrick.ErrInvalidData, err)
-		}
-		tokenBytes = b
-	}
-	return Pagination{
-		pageSize:  pageSize,
-		pageToken: tokenBytes,
-	}, nil
-}
-
 type Loader struct {
-	Sess *gocql.Session
+	sess *gocql.Session
 }
 
-func (l *Loader) Load(ctx context.Context, p Pagination) ([]Message, string, error) {
-	q, err := l.buildQuery(ctx, int(p.pageSize), p.pageToken)
+func New(sess *gocql.Session) *Loader {
+	return &Loader{sess: sess}
+}
+
+func (l *Loader) Load(ctx context.Context, roomChatID string, p Pagination) ([]Message, string, error) {
+	q, err := l.buildQuery(ctx, roomChatID, int(p.pageSize), p.pageToken)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed build query: %w", err)
 	}
@@ -127,8 +101,8 @@ func (l *Loader) convertFromCQLMsgs(cqlMsgs []cqlMsg) []Message {
 	return msgs
 }
 
-func (l *Loader) buildQuery(ctx context.Context, pSize int, pToken []byte) (*gocql.Query, error) {
-	return l.Sess.Query("SELECT * FROM chat.history WHERE chat_room_id = ? ORDER BY created_at DESC, msg_id DESC", roomChatID).
+func (l *Loader) buildQuery(ctx context.Context, roomChatID string, pSize int, pToken []byte) (*gocql.Query, error) {
+	return l.sess.Query("SELECT * FROM chat.history WHERE chat_room_id = ? ORDER BY created_at DESC, msg_id DESC", roomChatID).
 		WithContext(ctx).
 		PageState(pToken).
 		PageSize(pSize), nil

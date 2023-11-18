@@ -17,8 +17,9 @@ import (
 )
 
 type wsMsgEvt struct {
-	PendingID string `json:"pending_id"`
-	Msg       string `json:"msg"`
+	PendingID  string `json:"pending_id"`
+	ChatRoomID string `json:"chat_room_id"`
+	Msg        string `json:"msg"`
 }
 
 type msgEvtUser struct {
@@ -29,16 +30,18 @@ type msgEvtUser struct {
 }
 
 type msgEvt struct {
-	Msg       string     `json:"msg"`
-	PendingID string     `json:"pending_id"`
-	User      msgEvtUser `json:"user"`
-	CreatedAt time.Time  `json:"created_at"`
+	Msg        string     `json:"msg"`
+	PendingID  string     `json:"pending_id"`
+	User       msgEvtUser `json:"user"`
+	CreatedAt  time.Time  `json:"created_at"`
+	ChatRoomID string     `json:"chat_room_id"`
 }
 
-func newMsgEvt(pendingID, msg string, sess session.Session) msgEvt {
+func newMsgEvt(chatRoomID, pendingID, msg string, sess session.Session) msgEvt {
 	return msgEvt{
-		Msg:       msg,
-		PendingID: pendingID,
+		ChatRoomID: chatRoomID,
+		Msg:        msg,
+		PendingID:  pendingID,
 		User: msgEvtUser{
 			ID:        sess.Identity.ID,
 			Email:     sess.Identity.Traits.Email,
@@ -76,7 +79,7 @@ func (s Sender) Execute(ws *websocket.Conn) {
 }
 
 func (s Sender) publish(ctx context.Context, evt wsMsgEvt) error {
-	b, err := json.Marshal(newMsgEvt(evt.PendingID, evt.Msg, s.Sess))
+	b, err := json.Marshal(newMsgEvt(evt.ChatRoomID, evt.PendingID, evt.Msg, s.Sess))
 	if err != nil {
 		return fmt.Errorf("failed encode evt: %w", err)
 	}
