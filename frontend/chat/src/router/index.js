@@ -26,21 +26,14 @@ const router = createRouter({
     ]
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
     if (useUserStore().session?.active) {
-        if (to.name === 'signin' || to.name === 'signup') {
-            console.log('redirecting to chat 1');
-            return next({name: 'chat'});
-        }
-        console.log('redirecting to chat 2');
-        return next();
+        return !(to.name === 'signin' || to.name === 'signup');
     }
     if (to.name === 'signup' || to.name === 'signin') {
-        console.log('redirecting to signup');
-        return next();
+        return true
     }
-    console.log('redirecting to signin');
-    return next({name: 'signin'});
+    return '/signin'
 });
 
 export default router
